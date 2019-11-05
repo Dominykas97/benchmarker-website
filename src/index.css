@@ -26,6 +26,9 @@ ul.header li a {
 .content {
   background-color: #FFF;
   padding: 20px;
+  display: flex;
+  flex-direction: row;
+  /*flex-wrap: wrap;*/
 }
 .content h2 {
   padding: 0;
@@ -43,4 +46,12 @@ ul.header li a {
   font-size: larger;
   font-weight: bolder;
   padding: 10px;
+}
+.content .leftSide{
+  float: left;
+}
+.content .graphs{
+  float: right;
+  position: relative;
+  padding-left: 200px;
 }
