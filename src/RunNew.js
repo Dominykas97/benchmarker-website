@@ -5,15 +5,7 @@ class RunNew extends Component {
     return (
       <div>
         <h2>Configure a new test</h2>
-        <p>Mauris sem velit, vehicula eget sodales vitae,
-        rhoncus eget sapien:</p>
-        <ol>
-          <li>Nulla pulvinar diam</li>
-          <li>Facilisis bibendum</li>
-          <li>Vestibulum vulputate</li>
-          <li>Eget erat</li>
-          <li>Id porttitor</li>
-        </ol>
+          {/*<Button variant="primary">Primary</Button>*/}
       </div>
     );
   }
