@@ -98,7 +98,8 @@ state = {
             <li id="loadingDocks">LoadingDocks</li>
             <li><NavLink exact to="/">Tests</NavLink></li>
             <li><NavLink to="/new">Run new tests</NavLink></li>
-            <li><NavLink to="/completed">{this.state.data}</NavLink></li>
+            <li><NavLink to="/completed">Completed</NavLink></li>
+            <li><NavLink to="/">{this.state.data}</NavLink></li>
             {/*<li><NavLink to="/login">Login</NavLink></li>*/}
           </ul>
           <div className="content">
