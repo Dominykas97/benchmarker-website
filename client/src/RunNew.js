@@ -5,12 +5,19 @@ class RunNew extends Component {
     return (
       <div>
         <h2>Configure a new test</h2>
-        <button
-            className="btn btn-default"
-            // style={buttonStyle}
-            // onClick={createNewJob()}
-        >{"Run new"}
-        </button>
+          <form method='POST' action='/new_job'>
+              <button>Run</button>
+          </form>
+
+          <form method='POST' action='/remove_job'>
+              <button>Remove</button>
+          </form>
+          {/*<button*/}
+        {/*    className="btn btn-default"*/}
+        {/*    // style={buttonStyle}*/}
+        {/*    // onClick={createNewJob()}*/}
+        {/*>{"Run new"}*/}
+        {/*</button>*/}
       </div>
     );
   }

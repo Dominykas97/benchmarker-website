@@ -17,6 +17,10 @@
           "app.kubernetes.io/component": "express-back-end",
           "app.kubernetes.io/instance": "express-back-end",
           "app.openshift.io/runtime": "nodejs"
+        },
+        "annotations": {
+          "nodeshift/git-branch": "master",
+          "nodeshift/git-commit": "3227c4f107b98be8de1a68e8279e6075b1eb61e7"
         }
       },
       "spec": {
@@ -53,6 +57,10 @@
               "version": "0.1.0",
               "provider": "nodeshift",
               "app": "express-back-end"
+            },
+            "annotations": {
+              "nodeshift/git-branch": "master",
+              "nodeshift/git-commit": "3227c4f107b98be8de1a68e8279e6075b1eb61e7"
             }
           },
           "spec": {
@@ -106,6 +114,10 @@
           "app.kubernetes.io/component": "express-back-end",
           "app.kubernetes.io/instance": "express-back-end",
           "app.openshift.io/runtime": "nodejs"
+        },
+        "annotations": {
+          "nodeshift/git-branch": "master",
+          "nodeshift/git-commit": "3227c4f107b98be8de1a68e8279e6075b1eb61e7"
         }
       }
     },

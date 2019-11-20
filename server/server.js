@@ -41,74 +41,91 @@ app.get('/express_backend', (req, res) => {
     res.send({express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
 });
 
-// app.get('/new_job', (req, res) => {
-//     createNewJob();
-// });
+app.post('/new_job', (req, res) => {
+    createNewJob();
+});
+
+app.post('/remove_job', (req, res) => {
+    removeJob();
+});
 
 
-// export async function createNewJob() {
-//     const client = await openshiftRestClient(settings);
-//     console.log(projectName);
-//
-//     const newJob = await client.apis.batch.v1.ns(projectName).jobs.post({
-//             "body": {
-//                 "apiVersion": "batch/v1",
-//                 "kind": "Job",
-//                 "metadata": {
-//                     "name": "job-appsimulator-flinksim",
-//                     "namespace": "2262804sproject"
-//                 },
-//                 "spec": {
-//                     "parallelism": 1,
-//                     "completions": 1,
-//                     "template": {
-//                         "metadata": {
-//                             "labels": {
-//                                 "deploymentconfig": "job-appsimulator-flinksim",
-//                                 "app": "appsimulator",
-//                                 "group": "2262804s"
-//                             }
-//                         },
-//                         "spec": {
-//                             "containers": [
-//                                 {
-//                                     "name": "flinksim",
-//                                     "image": "docker-registry.default.svc:5000/2262804sproject/is-appsimulator-start:v1",
-//                                     "resources": {},
-//                                     "volumeMounts": [
-//                                         {
-//                                             "name": "config-files",
-//                                             "mountPath": "/opt/flink/config"
-//                                         }
-//                                     ],
-//                                     "env": [
-//                                         {
-//                                             "name": "JOB_MANAGER_RPC_ADDRESS",
-//                                             "value": "srv-jobmanager"
-//                                         }
-//                                     ],
-//                                     "imagePullPolicy": "Always"
-//                                 }
-//                             ],
-//                             "volumes": [
-//                                 {
-//                                     "name": "config-files",
-//                                     "configMap": {
-//                                         "name": "cm-appsimulator"
-//                                     }
-//                                 }
-//                             ],
-//                             "restartPolicy": "Never"
-//                         }
-//                     }
-//                 },
-//                 "status": {}
-//             }
-//         }
-//     );
-//     console.log("New Job:", newJob);
-//
-// }
+createNewJob = async () => {
+    const client = await openshiftRestClient(settings);
+    console.log(projectName);
+
+    const newJob = await client.apis.batch.v1.ns(projectName).jobs.post({
+            "body": {
+                "apiVersion": "batch/v1",
+                "kind": "Job",
+                "metadata": {
+                    "name": "job-appsimulator-flinksim",
+                    "namespace": "2262804sproject"
+                },
+                "spec": {
+                    "parallelism": 1,
+                    "completions": 1,
+                    "template": {
+                        "metadata": {
+                            "labels": {
+                                "deploymentconfig": "job-appsimulator-flinksim",
+                                "app": "appsimulator",
+                                "group": "2262804s"
+                            }
+                        },
+                        "spec": {
+                            "containers": [
+                                {
+                                    "name": "flinksim",
+                                    "image": "docker-registry.default.svc:5000/2262804sproject/is-appsimulator-start:v1",
+                                    "resources": {},
+                                    "volumeMounts": [
+                                        {
+                                            "name": "config-files",
+                                            "mountPath": "/opt/flink/config"
+                                        }
+                                    ],
+                                    "env": [
+                                        {
+                                            "name": "JOB_MANAGER_RPC_ADDRESS",
+                                            "value": "srv-jobmanager"
+                                        }
+                                    ],
+                                    "imagePullPolicy": "Always"
+                                }
+                            ],
+                            "volumes": [
+                                {
+                                    "name": "config-files",
+                                    "configMap": {
+                                        "name": "cm-appsimulator"
+                                    }
+                                }
+                            ],
+                            "restartPolicy": "Never"
+                        }
+                    }
+                },
+                "status": {}
+            }
+        }
+    );
+    console.log("New Job:", newJob);
+    return newJob;
+
+};
+
+removeJob = async () => {
+    const client = await openshiftRestClient(settings);
+    console.log(projectName);
+    // const projects = await client.apis.build.v1.ns(projectName).builds.get();
+    // console.log(projects);
+    // const namespaces = await client.apis.build.v1.ns('2262804sproject').pods;
+
+    const job = await client.apis.batch.v1.ns(projectName).jobs('job-appsimulator-flinksim').delete();
+    console.log("Job:", job);
+    return job;
+}
 
 function normalizePort(val) {
     var port = parseInt(val, 10);

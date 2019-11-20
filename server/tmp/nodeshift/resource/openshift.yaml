@@ -15,6 +15,9 @@ items:
         app.kubernetes.io/component: express-back-end
         app.kubernetes.io/instance: express-back-end
         app.openshift.io/runtime: nodejs
+      annotations:
+        nodeshift/git-branch: master
+        nodeshift/git-commit: 3227c4f107b98be8de1a68e8279e6075b1eb61e7
     spec:
       replicas: 1
       revisionHistoryLimit: 2
@@ -40,6 +43,9 @@ items:
             version: 0.1.0
             provider: nodeshift
             app: express-back-end
+          annotations:
+            nodeshift/git-branch: master
+            nodeshift/git-commit: 3227c4f107b98be8de1a68e8279e6075b1eb61e7
         spec:
           containers:
             - image: express-back-end
@@ -74,6 +80,9 @@ items:
         app.kubernetes.io/component: express-back-end
         app.kubernetes.io/instance: express-back-end
         app.openshift.io/runtime: nodejs
+      annotations:
+        nodeshift/git-branch: master
+        nodeshift/git-commit: 3227c4f107b98be8de1a68e8279e6075b1eb61e7
   - apiVersion: route.openshift.io/v1
     kind: Route
     spec:
