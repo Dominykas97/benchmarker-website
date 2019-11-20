@@ -1,9 +1,17 @@
-**To deploy on Openshift, run locally:**
+**To deploy Express backend on Openshift, run locally:**
 ```
-npx nodeshift --expose
+cd server && npx nodeshift --deploy.port=5000 --expose && cd -
+
 ```
 
-**To sync local files with Openshift:**
+**To deploy React frontend on Openshift, run locally:**
 ```
-./syncWithOpenshift.sh
+cd client && npx nodeshift --deploy.port=3000 --expose && cd -
+
+```
+
+**To sync React files with Openshift:**
+```
+cd Client; ./syncWithOpenshift.sh
+
 ```

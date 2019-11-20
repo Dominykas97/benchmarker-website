@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: benchmarker-website
+      namespace: 2262804sproject
+      labels:
+        project: benchmarker-website
+        version: 0.1.0
+        provider: nodeshift
+        app: benchmarker-website
+        app.kubernetes.io/name: nodejs
+        app.kubernetes.io/component: benchmarker-website
+        app.kubernetes.io/instance: benchmarker-website
+        app.openshift.io/runtime: nodejs
+      annotations:
+        nodeshift/git-branch: master
+        nodeshift/git-commit: 449a50d83c3deeddcddb5a8ef020b2fa633353d5
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 2
+      selector:
+        app: benchmarker-website
+        project: benchmarker-website
+        provider: nodeshift
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - benchmarker-website
+            from:
+              kind: ImageStreamTag
+              namespace: 2262804sproject
+              name: 'benchmarker-website:latest'
+      template:
+        metadata:
+          labels:
+            project: benchmarker-website
+            version: 0.1.0
+            provider: nodeshift
+            app: benchmarker-website
+          annotations:
+            nodeshift/git-branch: master
+            nodeshift/git-commit: 449a50d83c3deeddcddb5a8ef020b2fa633353d5
+        spec:
+          containers:
+            - image: benchmarker-website
+              name: benchmarker-website
+              securityContext:
+                privileged: false
+              ports:
+                - containerPort: 3000
+                  name: http
+                  protocol: TCP
+              env: []
+  - apiVersion: v1
+    kind: Service
+    spec:
+      selector:
+        project: benchmarker-website
+        provider: nodeshift
+      ports:
+        - protocol: TCP
+          port: 3000
+          targetPort: 3000
+          name: http
+      type: ClusterIP
+    metadata:
+      name: benchmarker-website
+      namespace: 2262804sproject
+      labels:
+        project: benchmarker-website
+        version: 0.1.0
+        provider: nodeshift
+        app.kubernetes.io/name: nodejs
+        app.kubernetes.io/component: benchmarker-website
+        app.kubernetes.io/instance: benchmarker-website
+        app.openshift.io/runtime: nodejs
+      annotations:
+        nodeshift/git-branch: master
+        nodeshift/git-commit: 449a50d83c3deeddcddb5a8ef020b2fa633353d5
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      to:
+        kind: Service
+        name: benchmarker-website
+      port:
+        targetPort: 3000
+    metadata:
+      name: benchmarker-website
+      labels:
+        project: benchmarker-website
+        version: 0.1.0
+        provider: nodeshift
+        app.kubernetes.io/name: nodejs
+        app.kubernetes.io/component: benchmarker-website
+        app.kubernetes.io/instance: benchmarker-website
+        app.openshift.io/runtime: nodejs

@@ -1,0 +1,22 @@
+{
+  "name": "express-back-end",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "PORT=5000 node server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "^4.17.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1",
+    "openshift-rest-client": "^3.0.1"
+  },
+  "main": "server.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
