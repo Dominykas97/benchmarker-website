@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+app.use(express.json());
+
 const openshiftRestClient = require('openshift-rest-client').OpenshiftClient;
 const projectName = '2262804sproject';
 const settings = {};
@@ -42,19 +44,33 @@ app.get('/express_backend', (req, res) => {
 });
 
 app.post('/new_job', (req, res) => {
-    createNewJob();
+    // console.log(req);
+
+    // console.log("ABCD");
+    // console.log(req);
+    // let newBook = JSON.parse(req.body);
+
+    // console.log("ABC");
+    // console.log(req.body);
+    createNewJob(req.body);
+    // alert("req");
+    // console.log(req);
+    // console.log(res);
+    res.redirect('/new');
 });
 
 app.post('/remove_job', (req, res) => {
     removeJob();
+    res.redirect('/new');
 });
 
 
-createNewJob = async () => {
+createNewJob = async (values) => {
     const client = await openshiftRestClient(settings);
-    console.log(projectName);
-
-    const newJob = await client.apis.batch.v1.ns(projectName).jobs.post({
+    // console.log(projectName);
+    console.log(values);
+    // const newJob = await
+        client.apis.batch.v1.ns(projectName).jobs.post({
             "body": {
                 "apiVersion": "batch/v1",
                 "kind": "Job",
@@ -90,6 +106,7 @@ createNewJob = async () => {
                                             "name": "JOB_MANAGER_RPC_ADDRESS",
                                             "value": "srv-jobmanager"
                                         }
+
                                     ],
                                     "imagePullPolicy": "Always"
                                 }
@@ -110,8 +127,8 @@ createNewJob = async () => {
             }
         }
     );
-    console.log("New Job:", newJob);
-    return newJob;
+    // console.log("New Job:", newJob);
+    // return newJob;
 
 };
 

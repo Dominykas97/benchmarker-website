@@ -17,7 +17,7 @@ items:
         app.openshift.io/runtime: nodejs
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 3227c4f107b98be8de1a68e8279e6075b1eb61e7
+        nodeshift/git-commit: 177a7ec32e9c8eba57940f100ec5905db20b96fb
     spec:
       replicas: 1
       revisionHistoryLimit: 2
@@ -45,7 +45,7 @@ items:
             app: benchmarker-website
           annotations:
             nodeshift/git-branch: master
-            nodeshift/git-commit: 3227c4f107b98be8de1a68e8279e6075b1eb61e7
+            nodeshift/git-commit: 177a7ec32e9c8eba57940f100ec5905db20b96fb
         spec:
           containers:
             - image: benchmarker-website
@@ -53,7 +53,7 @@ items:
               securityContext:
                 privileged: false
               ports:
-                - containerPort: 3000
+                - containerPort: 8080
                   name: http
                   protocol: TCP
               env: []
@@ -65,8 +65,8 @@ items:
         provider: nodeshift
       ports:
         - protocol: TCP
-          port: 3000
-          targetPort: 3000
+          port: 8080
+          targetPort: 8080
           name: http
       type: ClusterIP
     metadata:
@@ -82,22 +82,4 @@ items:
         app.openshift.io/runtime: nodejs
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 3227c4f107b98be8de1a68e8279e6075b1eb61e7
-  - apiVersion: route.openshift.io/v1
-    kind: Route
-    spec:
-      to:
-        kind: Service
-        name: benchmarker-website
-      port:
-        targetPort: 3000
-    metadata:
-      name: benchmarker-website
-      labels:
-        project: benchmarker-website
-        version: 0.1.0
-        provider: nodeshift
-        app.kubernetes.io/name: nodejs
-        app.kubernetes.io/component: benchmarker-website
-        app.kubernetes.io/instance: benchmarker-website
-        app.openshift.io/runtime: nodejs
+        nodeshift/git-commit: 177a7ec32e9c8eba57940f100ec5905db20b96fb
