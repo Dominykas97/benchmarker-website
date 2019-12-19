@@ -69,13 +69,60 @@ createNewJob = async (values) => {
     const client = await openshiftRestClient(settings);
     // console.log(projectName);
     console.log(values);
+    let a = await client.api.v1.ns(projectName).configmaps.get();
+    console.log(a);
+    console.log(a.body.items);
     // const newJob = await
-        client.apis.batch.v1.ns(projectName).jobs.post({
+    // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
+    let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator123').patch({
+    // "body":{"metadata":{"annotations":{"openshift.io/active-deadline-seconds-override":"9999"}}}
+
+            // pageLoadTime: '3', numberOfRequestsPerLoad: '200', memoryUsage: '5', pageSize:'3',
+            // numberOfRequests:'2', responseSize:'2', latency:'10', bandwidth:'1000', intervalBetweenRequests:'10'
+    "body":{"data": {
+            // "aa":"a"
+        "components.yaml": "- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: "+ values.memoryUsage
+            +" # MB\n  outputSize: 1 # KB\n- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: "+values.memoryUsage
+            +" # MB\n  outputSize: 1 # KB\n  io:\n    mode: startup # startup, regular, or both\n "
+            +"   numRequests: "+values.numberOfRequests+"\n    responseSize: "+ values.responseSize
+            +" # KB\n    latency: "+values.latency+" # ms\n    bandwidth: "+values.bandwidth
+            +" # Mbps\n    intervalBetweenRequests: "+values.intervalBetweenRequests+" # ms\n- parents:\n    - 1\n    - 2\n"
+            +"  cpuTime: 5 # ms\n  memoryUsage: "+values.memoryUsage+" # MB\n  outputSize: 1 # KB\n  io:\n    "
+            +"mode: both # startup, regular, or both\n    numRequests: "+values.numberOfRequests+"\n    responseSize: "+
+            values.responseSize+" # KB\n    latency: "+values.latency+" # ms\n    bandwidth: "+values.bandwidth
+            +" # Mbps\n    intervalBetweenRequests: "+values.intervalBetweenRequests+" # ms"
+        }
+    }
+    }
+    ).catch(function(error) {
+        console.log(error);
+        // Error handling here!
+    });
+    console.log(b);
+    // /api/v1/namespaces/$NAMESPACE/configmaps
+    // client.api.v1.ns(projectName).configmaps.post(
+    //     {
+    //         "body":
+    //             {s
+    //                 "kind": "ConfigMap",
+    //                 "apiVersion": "v1",
+    //                 "metadata": {
+    //                     "name": "cm-appsimulator123"
+    //                     // "namespace": "2262804sproject"
+    //                 },
+    //                 "data": {
+    //                     "components.yaml": "- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: 0 # MB\n  outputSize: 1 # KB\n- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: 0 # MB\n  outputSize: 1 # KB\n  io:\n    mode: startup # startup, regular, or both\n    numRequests: 2\n    responseSize: 2 # KB\n    latency: 10 # ms\n    bandwidth: 1000 # Mbps\n    intervalBetweenRequests: 10 # ms\n- parents:\n    - 1\n    - 2\n  cpuTime: 5 # ms\n  memoryUsage: 0 # MB\n  outputSize: 1 # KB\n  io:\n    mode: both # startup, regular, or both\n    numRequests: 2\n    responseSize: 2 # KB\n    latency: 10 # ms\n    bandwidth: 1000 # Mbps\n    intervalBetweenRequests: 10 # ms"
+    //                 }
+    //             }
+    //     });
+    let jobname = "job-appsimulator-flinksim-"+values.jobName;
+    console.log(jobname);
+    client.apis.batch.v1.ns(projectName).jobs.post({
             "body": {
                 "apiVersion": "batch/v1",
                 "kind": "Job",
                 "metadata": {
-                    "name": "job-appsimulator-flinksim",
+                    "name": jobname,
                     "namespace": "2262804sproject"
                 },
                 "spec": {
@@ -84,7 +131,7 @@ createNewJob = async (values) => {
                     "template": {
                         "metadata": {
                             "labels": {
-                                "deploymentconfig": "job-appsimulator-flinksim",
+                                "deploymentconfig": jobname,
                                 "app": "appsimulator",
                                 "group": "2262804s"
                             }
@@ -106,6 +153,42 @@ createNewJob = async (values) => {
                                             "name": "JOB_MANAGER_RPC_ADDRESS",
                                             "value": "srv-jobmanager"
                                         }
+                                        // {
+                                        //     "name": "pageLoadTime",
+                                        //     "value": values.pageLoadTime
+                                        // },
+                                        // {
+                                        //     "name": "numberOfRequestsPerLoad",
+                                        //     "value": values.numberOfRequestsPerLoad
+                                        // },
+                                        // {
+                                        //     "name": "memoryUsage",
+                                        //     "value": values.memoryUsage
+                                        // },
+                                        // {
+                                        //     "name": "pageSize",
+                                        //     "value": values.pageSize
+                                        // },
+                                        // {
+                                        //     "name": "numberOfRequests",
+                                        //     "value": values.numberOfRequests
+                                        // },
+                                        // {
+                                        //     "name": "responseSize",
+                                        //     "value": values.responseSize
+                                        // },
+                                        // {
+                                        //     "name": "LATENCY",
+                                        //     "value": values.latency
+                                        // },
+                                        // {
+                                        //     "name": "bandwidth",
+                                        //     "value": values.bandwidth
+                                        // },
+                                        // {
+                                        //     "name": "intervalBetweenRequests",
+                                        //     "value": values.intervalBetweenRequests
+                                        // }
 
                                     ],
                                     "imagePullPolicy": "Always"
@@ -131,6 +214,9 @@ createNewJob = async (values) => {
     // return newJob;
 
 };
+
+// pageLoadTime: '3', numberOfRequestsPerLoad: '200', memoryUsage: '5', pageSize:'3',
+//     numberOfRequests:'2', responseSize:'2', latency:'10', bandwidth:'1000', intervalBetweenRequests:'10'
 
 removeJob = async () => {
     const client = await openshiftRestClient(settings);

@@ -46,7 +46,7 @@ const RunNew = () => (
     <div>
         <h2>Configuring a new test</h2>
         <Formik
-            initialValues={{ pageLoadTime: '3', numberOfRequestsPerLoad: '200', memoryUsage: '5', pageSize:'3',
+            initialValues={{ jobName: 'abc123', pageLoadTime: '3', numberOfRequestsPerLoad: '200', memoryUsage: '5', pageSize:'3',
                 numberOfRequests:'2', responseSize:'2', latency:'10', bandwidth:'1000', intervalBetweenRequests:'10'}}
             validate={values => {
                 const errors = {};
@@ -62,7 +62,7 @@ const RunNew = () => (
             onSubmit={(values, { setSubmitting }) => {
                 setTimeout(() => {
                     alert(JSON.stringify(values, null, 2));
-                    console.log(values);
+                    // console.log(values);
                     // $.post("/new_job", values);
                     fetch('/new_job', {
                         method: 'POST',
@@ -78,6 +78,11 @@ const RunNew = () => (
 
             {({ isSubmitting }) => (
                 <Form>
+                    <div id={"frm"}>
+                        <label htmlFor="jobName">Job name: </label>
+                        <Field type="jobName" name="jobName" />
+                        <ErrorMessage name="jobName" component="div" />
+                    </div>
                     <div id={"frm"}>
                         <label htmlFor="pageLoadTime">Page load time: </label>
                         <Field type="pageLoadTime" name="pageLoadTime" />
@@ -125,14 +130,11 @@ const RunNew = () => (
                     </div>
 
                     <button type="submit" disabled={isSubmitting}>
-                        Submit
+                        Run
                     </button>
                 </Form>
             )}
         </Formik>
-        <form method='POST' action='/new_job'>
-            <button>Run</button>
-        </form>
         <form method='POST' action='/remove_job'>
             <button>Remove</button>
         </form>
