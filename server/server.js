@@ -64,6 +64,39 @@ app.post('/remove_job', (req, res) => {
     res.redirect('/new');
 });
 
+app.get('/completed_jobs', (req, res) => {
+    getCompletedJobs()
+        .then(jobs => {
+            console.log(jobs);
+
+            let jobsNames = [];
+            for (let job in jobs.body.items){
+                console.log("aaa");
+                console.log(job);
+                if(jobs.body.items.hasOwnProperty(job)){
+                    // if(jobs.body.items[job].hasOwnProperty("metadata")){
+                    //     console.log(job.metadata);
+                    //     if(job.metadata.hasOwnProperty("name")){
+                            jobsNames.push(jobs.body.items[job].metadata.name);
+                            console.log(jobs.body.items[job].metadata.name);
+                        // }
+                    // }
+                }
+            }
+            console.log("Job names: ");
+            console.log(jobsNames);
+            // data.body.items[0].metadata.name
+            // res.send({jobsNames:jobsNames});
+            res.send({data:jobs, jobsNames:jobsNames});
+        })
+
+
+    // let completedJobs =  await getCompletedJobs();
+    // console.log(completedJobs);
+    // res.send({data:completedJobs});
+    // res.redirect('/new');
+});
+
 
 createNewJob = async (values) => {
     const client = await openshiftRestClient(settings);
@@ -74,7 +107,7 @@ createNewJob = async (values) => {
     console.log(a.body.items);
     // const newJob = await
     // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
-    let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator123').patch({
+    let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').patch({
     // "body":{"metadata":{"annotations":{"openshift.io/active-deadline-seconds-override":"9999"}}}
 
             // pageLoadTime: '3', numberOfRequestsPerLoad: '200', memoryUsage: '5', pageSize:'3',
@@ -228,7 +261,20 @@ removeJob = async () => {
     const job = await client.apis.batch.v1.ns(projectName).jobs('job-appsimulator-flinksim').delete();
     console.log("Job:", job);
     return job;
-}
+};
+
+ getCompletedJobs = async () => {
+    const client = await openshiftRestClient(settings);
+    console.log(projectName);
+    // const projects = await client.apis.build.v1.ns(projectName).builds.get();
+    // console.log(projects);
+    // const namespaces = await client.apis.build.v1.ns('2262804sproject').pods;
+    // GET /apis/batch/v1/watch/namespaces/$NAMESPACE/jobs HTTP/1.1
+    // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
+    const completedJobs = await client.apis.batch.v1.ns(projectName).jobs().get();
+    console.log("Completed Jobs:", completedJobs);
+    return completedJobs;
+};
 
 function normalizePort(val) {
     var port = parseInt(val, 10);

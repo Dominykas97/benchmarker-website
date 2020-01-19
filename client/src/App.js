@@ -72,7 +72,6 @@ state = {
 
   componentDidMount() {
       // Call our fetch function below once the component mounts
-    console.warn("a");
     this.callBackendAPI()
       .then(res => this.setState({ data: res.express }))
       .catch(err => console.log(err));
