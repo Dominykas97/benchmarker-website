@@ -1,46 +1,5 @@
 import React, { Component } from "react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-// import {createNewJob} from "./rest";
-// class RunNew extends Component {
-//   render() {
-//     return (
-//       <div>
-//         <h2>Configure a new test</h2>
-//           <form method='POST' action='/new_job'>
-//               <button>Run</button>
-//           </form>
-//
-//           <form method='POST' action='/remove_job'>
-//               <button>Remove</button>
-//           </form>
-//
-//           <form>
-//               <label>
-//                   Name:
-//                   <input type="text" name="name" />
-//                   Page load time:
-//                   <input type="text" name="name" />
-//                   Number of requests per load:
-//                   <input type="text" name="name" />
-//               </label>
-//               <input type="submit" value="Submit" />
-//           </form>
-//           {/*<button*/}
-//         {/*    className="btn btn-default"*/}
-//         {/*    // style={buttonStyle}*/}
-//         {/*    // onClick={createNewJob()}*/}
-//         {/*>{"Run new"}*/}
-//         {/*</button>*/}
-//       </div>
-//     );
-//   }
-// }
- 
-// export default RunNew;
-//
-//
-// import React from 'react';
-// import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 const RunNew = () => (
     <div>
@@ -61,7 +20,7 @@ const RunNew = () => (
             }}
             onSubmit={(values, { setSubmitting }) => {
                 setTimeout(() => {
-                    alert(JSON.stringify(values, null, 2));
+                    // alert(JSON.stringify(values, null, 2));
                     // console.log(values);
                     // $.post("/new_job", values);
                     fetch('/new_job', {
@@ -135,9 +94,9 @@ const RunNew = () => (
                 </Form>
             )}
         </Formik>
-        <form method='POST' action='/remove_job'>
-            <button>Remove</button>
-        </form>
+        {/*<form method='POST' action='/remove_job'>*/}
+        {/*    <button>Remove</button>*/}
+        {/*</form>*/}
     </div>
 );
 

@@ -28,8 +28,24 @@ if (typeof ip === "undefined") {
     ip = "127.0.0.1";
 }
 
-// app.set('ip', ip);  
-// app.set('port', port);
+let jobsQueue = [];
+function checkRunningJob(){
+    getJobs()
+        .then(jobs => {
+            // console.log(jobs);
+            let runningJobs = getRunningJobs(jobs);
+            console.log("Checking running jobs:");
+            console.log(runningJobs);
+            if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
+                let jobParameters = jobsQueue.shift();
+                console.log("Checking parameters:");
+                console.log(jobParameters);
+                createNewJob(jobParameters);
+                // res.redirect('/new');
+            }
+        });
+}
+setInterval(checkRunningJob,10000);
 
 // console.log that your server is up and running
 app.listen(port, () => console.log(`${ip}:${port}`));
@@ -37,7 +53,6 @@ app.listen(port, () => console.log(`${ip}:${port}`));
 app.get('/', (req, res) => {
     res.redirect('/express_backend');
 });
-
 // create a GET route
 app.get('/express_backend', (req, res) => {
     res.send({express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
@@ -45,18 +60,21 @@ app.get('/express_backend', (req, res) => {
 
 app.post('/new_job', (req, res) => {
     // console.log(req);
-
-    // console.log("ABCD");
-    // console.log(req);
-    // let newBook = JSON.parse(req.body);
-
-    // console.log("ABC");
-    // console.log(req.body);
-    createNewJob(req.body);
-    // alert("req");
-    // console.log(req);
-    // console.log(res);
-    res.redirect('/new');
+    getJobs()
+        .then(jobs => {
+            // console.log(jobs);
+            let runningJobs = getRunningJobs(jobs);
+            console.log("running jobs:");
+            console.log(runningJobs);
+            if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
+                createNewJob(req.body);
+                res.redirect('/new');
+            } else {
+                jobsQueue.push(req.body);
+                console.log("Jobs queue:");
+                console.log(jobsQueue);
+            }
+        });
 });
 
 app.post('/remove_job', (req, res) => {
@@ -68,20 +86,8 @@ app.get('/running_jobs', (req, res) => {
     getJobs()
         .then(jobs => {
             console.log(jobs);
-            let runningJobs = [];
-            for (let job in jobs.body.items){
-                // console.log("aaa");
-                // console.log(job);
-                if(jobs.body.items.hasOwnProperty(job)){
-                    if(jobs.body.items[job].status.succeeded!==1){
-                        runningJobs.push(jobs.body.items[job].metadata.name);
-                        console.log(jobs.body.items[job].metadata.name);
-                    }
-                }
-            }
-            console.log("Running jobs: ");
-            console.log(runningJobs);
-            res.send({data:jobs, runningJobs:runningJobs});
+            let runningJobs = getRunningJobs(jobs);
+            res.send({data:jobs, runningJobs:runningJobs, queueJobs: jobsQueue});
         })
 });
 
@@ -280,6 +286,23 @@ getJobs = async () => {
     console.log("Completed Jobs:", completedJobs);
     return completedJobs;
 };
+
+function getRunningJobs(jobs) {
+    let runningJobs = [];
+    for (let job in jobs.body.items) {
+        // console.log("aaa");
+        // console.log(job);
+        if (jobs.body.items.hasOwnProperty(job)) {
+            if (jobs.body.items[job].status.succeeded !== 1) {
+                runningJobs.push(jobs.body.items[job].metadata.name);
+                console.log(jobs.body.items[job].metadata.name);
+            }
+        }
+    }
+    console.log("Running jobs: ");
+    console.log(runningJobs);
+    return runningJobs;
+}
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
