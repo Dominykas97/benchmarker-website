@@ -64,37 +64,46 @@ app.post('/remove_job', (req, res) => {
     res.redirect('/new');
 });
 
-app.get('/completed_jobs', (req, res) => {
-    getCompletedJobs()
+app.get('/running_jobs', (req, res) => {
+    getJobs()
         .then(jobs => {
             console.log(jobs);
+            let runningJobs = [];
+            for (let job in jobs.body.items){
+                // console.log("aaa");
+                // console.log(job);
+                if(jobs.body.items.hasOwnProperty(job)){
+                    if(jobs.body.items[job].status.succeeded!==1){
+                        runningJobs.push(jobs.body.items[job].metadata.name);
+                        console.log(jobs.body.items[job].metadata.name);
+                    }
+                }
+            }
+            console.log("Running jobs: ");
+            console.log(runningJobs);
+            res.send({data:jobs, runningJobs:runningJobs});
+        })
+});
 
+app.get('/completed_jobs', (req, res) => {
+    getJobs()
+        .then(jobs => {
+            console.log(jobs);
             let jobsNames = [];
             for (let job in jobs.body.items){
-                console.log("aaa");
-                console.log(job);
+                // console.log("aaa");
+                // console.log(job);
                 if(jobs.body.items.hasOwnProperty(job)){
-                    // if(jobs.body.items[job].hasOwnProperty("metadata")){
-                    //     console.log(job.metadata);
-                    //     if(job.metadata.hasOwnProperty("name")){
-                            jobsNames.push(jobs.body.items[job].metadata.name);
-                            console.log(jobs.body.items[job].metadata.name);
-                        // }
-                    // }
+                    if(jobs.body.items[job].status.succeeded===1){
+                        jobsNames.push(jobs.body.items[job].metadata.name);
+                        console.log(jobs.body.items[job].metadata.name);
+                    }
                 }
             }
             console.log("Job names: ");
             console.log(jobsNames);
-            // data.body.items[0].metadata.name
-            // res.send({jobsNames:jobsNames});
             res.send({data:jobs, jobsNames:jobsNames});
         })
-
-
-    // let completedJobs =  await getCompletedJobs();
-    // console.log(completedJobs);
-    // res.send({data:completedJobs});
-    // res.redirect('/new');
 });
 
 
@@ -263,13 +272,9 @@ removeJob = async () => {
     return job;
 };
 
- getCompletedJobs = async () => {
+getJobs = async () => {
     const client = await openshiftRestClient(settings);
     console.log(projectName);
-    // const projects = await client.apis.build.v1.ns(projectName).builds.get();
-    // console.log(projects);
-    // const namespaces = await client.apis.build.v1.ns('2262804sproject').pods;
-    // GET /apis/batch/v1/watch/namespaces/$NAMESPACE/jobs HTTP/1.1
     // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
     const completedJobs = await client.apis.batch.v1.ns(projectName).jobs().get();
     console.log("Completed Jobs:", completedJobs);
