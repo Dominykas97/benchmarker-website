@@ -3,13 +3,14 @@ import React, {Component} from "react";
 class Tests extends Component {
     constructor(props) {
         super(props);
-        this.callRemoveJob = this.callRemoveJob.bind(this);
+        this.callRemoveRunningTest = this.callRemoveRunningTest.bind(this);
         this.state = {
             data: null
         };
     }
-    callRemoveJob(name) {
-        console.log("callRemoveJob is called");
+
+    callRemoveRunningTest(name) {
+        console.log("callRemoveRunningTest is called");
         console.log(name);
         fetch('/remove_job', {
             method: 'POST',
@@ -20,6 +21,7 @@ class Tests extends Component {
         });
         console.log(JSON.stringify({name: name}))
     }
+
     componentDidMount() {
         this.callBackendAPI()
             .then(res => this.setState({data: res.data, runningJobs: res.runningJobs, queueNames: res.queueNames}))
@@ -44,15 +46,17 @@ class Tests extends Component {
 
 
     render() {
+        let runningTestsButtonShown = true;
         let runningJobsNames = this.state.runningJobs;
         if (typeof runningJobsNames === 'undefined' || runningJobsNames.length === 0) {
             runningJobsNames = ["There are no running jobs."];
+            runningTestsButtonShown = false;
         }
         let queueNames = this.state.queueNames;
         if (typeof queueNames === 'undefined' || queueNames.length === 0) {
             queueNames = ["There are no jobs in the queue."];
         }
-        // console.log(data);
+
         console.log(this.state.runningJobs);
         console.log(this.state.queueNames);
 
@@ -61,12 +65,9 @@ class Tests extends Component {
                 <h2>Running tests</h2>
                 {runningJobsNames.map(name =>
                     <div>{name}
-                        {/*{if(name!=="There are no running jobs."){*/}
-                            <button onClick={() => this.callRemoveJob(name)}>
-                                Remove
-                            </button>
-                        {/*}*/}
-
+                        {runningTestsButtonShown ? (<button onClick={() => this.callRemoveRunningTest(name)}>
+                            Remove
+                        </button>) : null}
                     </div>)}
 
                 <h2>Tests in queue</h2>
