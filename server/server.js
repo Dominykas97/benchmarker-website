@@ -38,7 +38,7 @@ function checkRunningJob() {
             let runningJobs = getRunningJobs(jobs);
             console.log("Checking running jobs:");
             console.log(runningJobs);
-            if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
+            if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
                 let jobParameters = jobsQueue.shift();
                 console.log("Checking parameters:");
                 console.log(jobParameters);
@@ -86,8 +86,10 @@ app.post('/new_job', (req, res) => {
 });
 
 app.post('/remove_job', (req, res) => {
-    removeJob();
-    res.redirect('/new');
+    console.log("app.post removing name:");
+    console.log(req.body.name);
+    removeJob(req.body.name);
+    // res.redirect('/new');
 });
 
 app.get('/running_jobs', (req, res) => {
@@ -103,7 +105,7 @@ app.get('/running_jobs', (req, res) => {
 app.get('/completed_jobs', (req, res) => {
     getJobs()
         .then(jobs => {
-            console.log(jobs);
+            // console.log(jobs);
             let jobsNames = [];
             for (let job in jobs.body.items) {
                 // console.log("aaa");
@@ -111,12 +113,12 @@ app.get('/completed_jobs', (req, res) => {
                 if (jobs.body.items.hasOwnProperty(job)) {
                     if (jobs.body.items[job].status.succeeded === 1) {
                         jobsNames.push(jobs.body.items[job].metadata.name);
-                        console.log(jobs.body.items[job].metadata.name);
+                        // console.log(jobs.body.items[job].metadata.name);
                     }
                 }
             }
-            console.log("Job names: ");
-            console.log(jobsNames);
+            // console.log("Job names: ");
+            // console.log(jobsNames);
             res.send({data: jobs, jobsNames: jobsNames});
         })
 });
@@ -124,10 +126,10 @@ app.get('/completed_jobs', (req, res) => {
 
 async function createNewJob(values){
     const client = await openshiftRestClient(settings);
-    console.log(values);
+    // console.log(values);
     let a = await client.api.v1.ns(projectName).configmaps.get();
-    console.log(a);
-    console.log(a.body.items);
+    // console.log(a);
+    // console.log(a.body.items);
     // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
     let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').patch({
             "body": {
@@ -149,7 +151,7 @@ async function createNewJob(values){
         console.log(error);
         // Error handling here!
     });
-    console.log(b);
+    // console.log(b);
     // /api/v1/namespaces/$NAMESPACE/configmaps
 
     let jobname = "job-appsimulator-flinksim-" + values.jobName;
@@ -249,9 +251,11 @@ async function createNewJob(values){
     );
 }
 
-async function removeJob() {
+async function removeJob(name) {
     const client = await openshiftRestClient(settings);
-    const job = await client.apis.batch.v1.ns(projectName).jobs('job-appsimulator-flinksim').delete();
+    console.log("Trying to remove job:");
+    console.log(name);
+    const job = await client.apis.batch.v1.ns(projectName).jobs(name).delete();
     console.log("Job:", job);
     return job;
 }
@@ -260,7 +264,7 @@ async function getJobs() {
     const client = await openshiftRestClient(settings);
     // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
     const completedJobs = await client.apis.batch.v1.ns(projectName).jobs().get();
-    console.log("Completed Jobs:", completedJobs);
+    // console.log("Completed Jobs:", completedJobs);
     return completedJobs;
 }
 

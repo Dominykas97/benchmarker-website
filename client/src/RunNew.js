@@ -142,9 +142,9 @@ class RunNew extends Component {
                         </Form>
                     )}
                 </Formik>
-                {/*<form method='POST' action='/remove_job'>*/}
-                {/*    <button>Remove</button>*/}
-                {/*</form>*/}
+                    {/*<form method='POST' action='/remove_job'>*/}
+                    {/*    <button>Remove</button>*/}
+                    {/*</form>*/}
             </div>
         )
     };
