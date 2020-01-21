@@ -38,11 +38,11 @@
 // export default App;
 
 
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
-  Route,
-  NavLink,
-  HashRouter
+    Route,
+    NavLink,
+    HashRouter
 } from "react-router-dom";
 
 
@@ -66,62 +66,68 @@ import Completed from "./Completed";
 // console.warn(host, port);
 
 class App extends Component {
-state = {
-    data: null
-  };
+    state = {
+        data: null
+    };
 
-  componentDidMount() {
-      // Call our fetch function below once the component mounts
-    this.callBackendAPI()
-      .then(res => this.setState({ data: res.express }))
-      .catch(err => console.log(err));
-  }
-    // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch('/express_backend');
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message) 
+    componentDidMount() {
+        // Call our fetch function below once the component mounts
+        this.callBackendAPI()
+            .then(res => this.setState({data: res.express}))
+            .catch(err => console.log(err));
     }
 
-    return body;
-  };
+    // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
+    callBackendAPI = async () => {
+        const response = await fetch('/express_backend');
+        const body = await response.json();
 
-  render() {
-    return (
-      <HashRouter>
-        <div>
-          {/*<h1>Simple SPA</h1>*/}
-          <ul className="header">
-            <li id="loadingDocks">LoadingDocks</li>
-            <li><NavLink exact to="/">Tests</NavLink></li>
-            <li><NavLink to="/new">Run new tests</NavLink></li>
-            <li><NavLink to="/completed">Completed</NavLink></li>
-            <li><NavLink to="/">{this.state.data}</NavLink></li>
-            {/*<li><NavLink to="/login">Login</NavLink></li>*/}
-          </ul>
-          <div className="content">
-            <Route exact path="/" component={Tests}/>
-            <Route path="/new" component={RunNew}/>
-            <Route path="/completed" component={Completed}/>
-            {/*<Route path="/login" component={LoginPage}/>*/}
-          </div>
-        </div>
-      </HashRouter>
-    );
-  }
+        if (response.status !== 200) {
+            throw Error(body.message)
+        }
+
+        return body;
+    };
+
+    render() {
+        return (
+            <HashRouter>
+                <div>
+                    {/*<h1>Simple SPA</h1>*/}
+                    <ul className="header">
+                        <li id="loadingDocks">LoadingDocks</li>
+                        <li><NavLink exact to="/">Tests</NavLink></li>
+                        <li><NavLink to="/new">Run new tests</NavLink></li>
+                        <li><NavLink to="/completed">Completed</NavLink></li>
+                        <li><NavLink to="/">{this.state.data}</NavLink></li>
+                        {/*<li><NavLink to="/login">Login</NavLink></li>*/}
+                    </ul>
+                    <div className="content">
+                        <Route exact path="/" component={Tests}/>
+                        <Route path="/new" component={RunNew}/>
+                        <Route path="/completed" component={Completed}/>
+                        {/*<Route path="/login" component={LoginPage}/>*/}
+                    </div>
+                </div>
+            </HashRouter>
+        );
+    }
 }
 
 export default App;
 
 
-
-
-{/*<div className="App">*/}
-{/*<header className="App-header">*/}
-{/*  <h1 className="App-title">Welcome to React</h1>*/}
-{/*</header>*/}
-{/*//Render the newly fetched data inside of this.state.data*/}
-{/*<p className="App-intro">{this.state.data}</p>*/}
-{/*</div>*/}
+{/*<div className="App">*/
+}
+{/*<header className="App-header">*/
+}
+{/*  <h1 className="App-title">Welcome to React</h1>*/
+}
+{/*</header>*/
+}
+{/*//Render the newly fetched data inside of this.state.data*/
+}
+{/*<p className="App-intro">{this.state.data}</p>*/
+}
+{/*</div>*/
+}
