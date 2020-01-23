@@ -71,7 +71,7 @@ class Tests extends Component {
         //     console.log(deletedQueueNames.size);
         // }
         let deletedQueueSize;
-        if (typeof deletedQueueNames === 'undefined' || !Object.keys(deletedQueueNames).length){
+        if (typeof deletedQueueNames === 'undefined' || Object.keys(deletedQueueNames).length === 0){
             deletedQueueSize = 0;
         } else {
             deletedQueueSize = deletedQueueNames.size;
@@ -90,7 +90,7 @@ class Tests extends Component {
             <div>
                 <h2>Running tests</h2>
                 {runningJobsNames.map(name =>
-                    <div>{name}
+                    <div key="runningTests">{name}
                         {runningTestsButtonShown ? (<button onClick={() => this.callRemoveRunningTest(name)}>
                             Remove
                         </button>) : null}
@@ -98,10 +98,10 @@ class Tests extends Component {
 
                 <h2>Tests in queue</h2>
                 {queueNames.map(name =>
-                        <div>{name}
-                            {queueButtonShown ? (<button onClick={() => this.callRemoveFromQueue(name)}>
-                                Remove
-                            </button>) : null}</div>)}
+                    <div key={"testsInQueue"+name}>{name}
+                        {queueButtonShown ? (<button onClick={() => this.callRemoveFromQueue(name)}>
+                            Remove
+                        </button>) : null}</div>)}
             </div>
         );
     }

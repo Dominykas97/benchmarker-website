@@ -41,6 +41,9 @@ function checkRunningJob() {
             console.log(runningJobs);
             if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
                 let jobParameters = jobsQueue.shift();
+                while(deletedQueueNames.has(jobParameters.jobName)){
+                    jobParameters = jobsQueue.shift();
+                }
                 console.log("Checking parameters:");
                 console.log(jobParameters);
                 createNewJob(jobParameters);
@@ -96,7 +99,7 @@ app.post('/remove_job', (req, res) => {
 app.post('/remove_from_queue', (req, res) => {
     console.log("app.post removing name from queue:");
     console.log(req.body.name);
-    deletedQueueNames.add("job-appsimulator-flinksim-"+req.body.name);
+    deletedQueueNames.add(req.body.name);
     console.log(deletedQueueNames);
     // removeJob(req.body.name);
     // res.redirect('/new');
@@ -164,14 +167,14 @@ async function createNewJob(values){
     // console.log(b);
     // /api/v1/namespaces/$NAMESPACE/configmaps
 
-    let jobname = "job-appsimulator-flinksim-" + values.jobName;
-    console.log(jobname);
+    // let jobname = values.jobType + values.jobName;
+    // console.log(jobname);
     client.apis.batch.v1.ns(projectName).jobs.post({
             "body": {
                 "apiVersion": "batch/v1",
                 "kind": "Job",
                 "metadata": {
-                    "name": jobname,
+                    "name": values.jobName,
                     "namespace": "2262804sproject"
                 },
                 "spec": {
@@ -180,7 +183,7 @@ async function createNewJob(values){
                     "template": {
                         "metadata": {
                             "labels": {
-                                "deploymentconfig": jobname,
+                                "deploymentconfig": values.jobName,
                                 "app": "appsimulator",
                                 "group": "2262804s"
                             }
@@ -283,7 +286,7 @@ function getQueueNames() {
     for (let name in jobsQueue) {
         if (jobsQueue.hasOwnProperty(name)) {
 
-            if(!deletedQueueNames.has("job-appsimulator-flinksim-" +jobsQueue[name].jobName)){
+            if(!deletedQueueNames.has(jobsQueue[name].jobName)){
                 console.log("Adding to queue:");
                 console.log(jobsQueue[name].jobName);
                 console.log(deletedQueueNames);

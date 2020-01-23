@@ -37,6 +37,7 @@ class RunNew extends Component {
                 <h2>Configuring a new test</h2>
                 <Formik
                     initialValues={{
+                        jobType: "job-appsimulator-flinksim-",
                         jobName: 'abc123',
                         pageLoadTime: '3',
                         numberOfRequestsPerLoad: '200',
@@ -70,6 +71,7 @@ class RunNew extends Component {
                             // alert(JSON.stringify(values, null, 2));
                             // console.log(values);
                             // $.post("/new_job", values);
+                            values.jobName = values.jobType+values.jobName;
                             fetch('/new_job', {
                                 method: 'POST',
                                 headers: {
@@ -85,6 +87,15 @@ class RunNew extends Component {
 
                     {({isSubmitting}) => (
                         <Form>
+                            <div id={"frm"}>
+                                <label htmlFor="jobType">Job type: </label>
+                                <Field as="select" name="jobType">
+                                    <option value="job-appsimulator-flinksim-">Appsimulator</option>
+                                    <option value="job-appsimulator-flinksim2-">Appsimulator2</option>
+                                    <option value="job-appsimulator-flinksim3-">Appsimulator3</option>
+                                </Field>
+                                <ErrorMessage name="jobType" component="div"/>
+                            </div>
                             <div id={"frm"}>
                                 <label htmlFor="jobName">Job name: </label>
                                 <Field type="jobName" name="jobName"/>
