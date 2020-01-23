@@ -8,7 +8,6 @@ class Tests extends Component {
             data: null
         };
     }
-
     callRemoveRunningTest(name) {
         console.log("callRemoveRunningTest is called");
         console.log(name);
@@ -22,9 +21,22 @@ class Tests extends Component {
         console.log(JSON.stringify({name: name}))
     }
 
+    callRemoveFromQueue(name) {
+        console.log("callRemoveFromQueue is called");
+        console.log(name);
+        fetch('/remove_from_queue', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({name: name})
+        });
+        console.log(JSON.stringify({name: name}))
+    }
+
     componentDidMount() {
         this.callBackendAPI()
-            .then(res => this.setState({data: res.data, runningJobs: res.runningJobs, queueNames: res.queueNames}))
+            .then(res => this.setState({data: res.data, runningJobs: res.runningJobs, queueNames: res.queueNames, deletedQueueNames: res.deletedQueueNames}))
             .catch(err => console.log(err));
         console.log("componentDidMount");
         // console.log(this.state.data);
@@ -52,9 +64,23 @@ class Tests extends Component {
             runningJobsNames = ["There are no running jobs."];
             runningTestsButtonShown = false;
         }
+        let queueButtonShown = true;
         let queueNames = this.state.queueNames;
-        if (typeof queueNames === 'undefined' || queueNames.length === 0) {
+        let deletedQueueNames = this.state.deletedQueueNames;
+        // if (deletedQueueNames.s){
+        //     console.log(deletedQueueNames.size);
+        // }
+        let deletedQueueSize;
+        if (typeof deletedQueueNames === 'undefined' || !Object.keys(deletedQueueNames).length){
+            deletedQueueSize = 0;
+        } else {
+            deletedQueueSize = deletedQueueNames.size;
+        }
+        console.log(deletedQueueNames);
+        console.log(deletedQueueSize);
+        if (typeof queueNames === 'undefined' || (queueNames.length - deletedQueueSize) === 0) {
             queueNames = ["There are no jobs in the queue."];
+            queueButtonShown = false;
         }
 
         console.log(this.state.runningJobs);
@@ -71,7 +97,11 @@ class Tests extends Component {
                     </div>)}
 
                 <h2>Tests in queue</h2>
-                {queueNames.map(name => <div>{name}</div>)}
+                {queueNames.map(name =>
+                        <div>{name}
+                            {queueButtonShown ? (<button onClick={() => this.callRemoveFromQueue(name)}>
+                                Remove
+                            </button>) : null}</div>)}
             </div>
         );
     }

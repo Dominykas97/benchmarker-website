@@ -30,6 +30,7 @@ if (typeof ip === "undefined") {
 }
 
 let jobsQueue = [];
+let deletedQueueNames = new Set();
 
 function checkRunningJob() {
     getJobs()
@@ -92,13 +93,22 @@ app.post('/remove_job', (req, res) => {
     // res.redirect('/new');
 });
 
+app.post('/remove_from_queue', (req, res) => {
+    console.log("app.post removing name from queue:");
+    console.log(req.body.name);
+    deletedQueueNames.add("job-appsimulator-flinksim-"+req.body.name);
+    console.log(deletedQueueNames);
+    // removeJob(req.body.name);
+    // res.redirect('/new');
+});
+
 app.get('/running_jobs', (req, res) => {
     getJobs()
         .then(jobs => {
             console.log(jobs);
             let runningJobs = getRunningJobs(jobs);
             let queueNames = getQueueNames();
-            res.send({data: jobs, runningJobs: runningJobs, queueNames: queueNames});
+            res.send({data: jobs, runningJobs: runningJobs, queueNames: queueNames, deletedQueueNames: deletedQueueNames});
         })
 });
 
@@ -272,7 +282,18 @@ function getQueueNames() {
     let jobsQueueNames = [];
     for (let name in jobsQueue) {
         if (jobsQueue.hasOwnProperty(name)) {
-            jobsQueueNames.push(jobsQueue[name].jobName);
+
+            if(!deletedQueueNames.has("job-appsimulator-flinksim-" +jobsQueue[name].jobName)){
+                console.log("Adding to queue:");
+                console.log(jobsQueue[name].jobName);
+                console.log(deletedQueueNames);
+                jobsQueueNames.push(jobsQueue[name].jobName);
+
+            }
+            // else {
+            //     console.log("Not added to queue:");
+            //     console.log(jobsQueue[name].jobName);
+            // }
         }
     }
     return jobsQueueNames;
