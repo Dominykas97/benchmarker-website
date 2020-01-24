@@ -30,6 +30,7 @@ if (typeof ip === "undefined") {
 }
 
 let jobsQueue = [];
+let jobsServicesDeploymentConfigs = [];
 let deletedQueueNames = new Set();
 
 function checkRunningJob() {
@@ -46,6 +47,7 @@ function checkRunningJob() {
                 }
                 console.log("Checking parameters:");
                 console.log(jobParameters);
+                patchConfigMap(jobParameters);
                 createNewJob(jobParameters);
                 // res.redirect('/new');
             }
@@ -86,11 +88,24 @@ app.post('/new_job', (req, res) => {
                 console.log(serviceTaskManagerName);
                 console.log(deploymentConfigJobManagerName);
                 console.log(deploymentConfigTaskManagerName);
+                // let name = JSON.stringify(req.body.jobName);
+                let a = {
+                    "jobName": req.body.jobName,
+                    "serviceJobManagerName": serviceJobManagerName,
+                    "serviceTaskManagerName": serviceTaskManagerName,
+                    "deploymentConfigJobManagerName": deploymentConfigJobManagerName,
+                    "deploymentConfigTaskManagerName": deploymentConfigTaskManagerName
+                };
+                console.log(a);
+                jobsServicesDeploymentConfigs.push(a);
+                patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
+                patchFlinkConfigMap(serviceJobManagerName);
+                patchConfigMap(req.body);
                 createJobManagerService(req.body, serviceJobManagerName);
                 createTaskManagerService(req.body, serviceTaskManagerName);
                 deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
                 deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
-                createNewJob(req.body);
+                createNewJob(req.body, serviceJobManagerName);
                 // res.send({alerts:'New test created.'});
                 res.redirect('/new');
             } else {
@@ -107,6 +122,11 @@ app.post('/remove_job', (req, res) => {
     console.log("app.post removing name:");
     console.log(req.body.name);
     removeJob(req.body.name);
+    let a = jobsServicesDeploymentConfigs.shift();
+    removeService(a.serviceTaskManagerName);
+    removeService(a.serviceJobManagerName);
+    removeDeploymentConfig(a.deploymentConfigTaskManagerName);
+    removeDeploymentConfig(a.deploymentConfigJobManagerName);
     // res.redirect('/new');
 });
 
@@ -200,6 +220,17 @@ function getRunningJobs(jobs) {
     console.log("Running jobs: ");
     console.log(runningJobs);
     return runningJobs;
+}
+
+async function removeService(name){
+    const client = await openshiftRestClient(settings);
+//    DELETE /api/v1/namespaces/$NAMESPACE/services/$NAME HTTP/1.1
+    let a = await client.api.v1.ns(projectName).services(name).delete();
+}
+async function removeDeploymentConfig(name){
+    const client = await openshiftRestClient(settings);
+    //DELETE /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs/$NAME HTTP/1.1
+    let a = await client.apis.app.v1.ns(projectName).deploymentconfigs(name).delete();
 }
 
 async function createJobManagerService(values, serviceJobManagerName) {
@@ -463,12 +494,59 @@ async function deployTaskManager(values, serviceJobManagerName, deploymentConfig
     });
 }
 
-async function createNewJob(values) {
+async function patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName) {
     const client = await openshiftRestClient(settings);
-    // console.log(values);
-    // let a = await client.api.v1.ns(projectName).configmaps.get();
-    // console.log(a);
-    // console.log(a.body.items);
+    let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').patch({
+            "body": {
+                "data": {
+                    "prometheus.yml":
+                        "global:\n" +
+                        "  scrape_interval:     1s\n" +
+                        "  evaluation_interval: 1s\n" +
+                        "\n" +
+                        "scrape_configs:\n" +
+                        "  - job_name: 'benchmarker'\n" +
+                        "    static_configs:\n" +
+                        "      - targets: ['srv-jobmanager:9250', 'srv-taskmanager:9250', '"+serviceJobManagerName+":9250', '"+serviceTaskManagerName+":9250'"+"]"
+
+                }
+            }
+        }
+    ).catch(function (error) {
+        console.log(error);
+        // Error handling here!
+    });
+}
+
+async function patchFlinkConfigMap(serviceJobManagerName) {
+    const client = await openshiftRestClient(settings);
+    let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').patch({
+            "body": {
+                "data": {
+                    "flink-conf.yaml": "jobmanager.rpc.address: " + serviceJobManagerName + "\n" +
+                        "jobmanager.rpc.port: 6123" + "\n" +
+                        "jobmanager.heap.size: 1024m" + "\n" +
+
+                        "taskmanager.heap.size: 1024m" + "\n" +
+                        "taskmanager.numberOfTaskSlots: 1" + "\n" +
+
+                        "parallelism.default: 1" + "\n" +
+
+                        "metrics.latency.interval: 1000" + "\n" +
+                        "metrics.reporters: prom" + "\n" +
+                        "metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter" + "\n" +
+                        "metrics.reporter.prom.port: 9250"
+                }
+            }
+        }
+    ).catch(function (error) {
+        console.log(error);
+        // Error handling here!
+    });
+}
+
+async function patchConfigMap(values) {
+    const client = await openshiftRestClient(settings);
     // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
     let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').patch({
             "body": {
@@ -490,12 +568,13 @@ async function createNewJob(values) {
         console.log(error);
         // Error handling here!
     });
+}
 
-    // let jobname = values.jobType + values.jobName;
-    // console.log(jobname);
+async function createNewJob(values, serviceJobManagerName) {
+    const client = await openshiftRestClient(settings);
 
     // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
-    client.apis.batch.v1.ns(projectName).jobs.post({
+    let a = await client.apis.batch.v1.ns(projectName).jobs.post({
             "body": {
                 "apiVersion": "batch/v1",
                 "kind": "Job",
@@ -529,7 +608,7 @@ async function createNewJob(values) {
                                     "env": [
                                         {
                                             "name": "JOB_MANAGER_RPC_ADDRESS",
-                                            "value": "srv-jobmanager"
+                                            "value": serviceJobManagerName
                                         }
                                     ],
                                     "imagePullPolicy": "Always"
