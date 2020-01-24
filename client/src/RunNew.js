@@ -62,16 +62,6 @@ class RunNew extends Component {
                     }}
                     onSubmit={(values, {setSubmitting}) => {
                         setTimeout(() => {
-                            // console.log(this.state.alerts);
-                            //
-                            // if(this.state.alerts !== 'null'){
-                            //     console.log(this.state.alerts);
-                            //     alert(this.state.alerts);
-                            // }
-                            // alert(JSON.stringify(values, null, 2));
-                            // console.log(values);
-                            // $.post("/new_job", values);
-                            values.jobName = values.jobType+values.jobName;
                             fetch('/new_job', {
                                 method: 'POST',
                                 headers: {
@@ -79,7 +69,6 @@ class RunNew extends Component {
                                 },
                                 body: JSON.stringify(values)
                             });
-                            // alert(a);
                             setSubmitting(false);
                         }, 400);
                     }}

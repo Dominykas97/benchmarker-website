@@ -41,7 +41,7 @@ function checkRunningJob() {
             console.log(runningJobs);
             if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
                 let jobParameters = jobsQueue.shift();
-                while(deletedQueueNames.has(jobParameters.jobName)){
+                while (deletedQueueNames.has(jobParameters.jobName)) {
                     jobParameters = jobsQueue.shift();
                 }
                 console.log("Checking parameters:");
@@ -74,8 +74,22 @@ app.post('/new_job', (req, res) => {
             let runningJobs = getRunningJobs(jobs);
             console.log("running jobs:");
             console.log(runningJobs);
+            req.body.jobName = req.body.jobType + req.body.jobName;
             if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
-                // alert("aaaa");
+
+                let serviceJobManagerName = req.body.jobName.replace("job-", "srv-jobmanager-");
+                let serviceTaskManagerName = req.body.jobName.replace("job-", "srv-taskmanager-");
+                let deploymentConfigName = req.body.jobName.replace("job-", "dc-");
+                let deploymentConfigJobManagerName = deploymentConfigName.replace("-flinksim-", "-flinksim-jobmanager-");
+                let deploymentConfigTaskManagerName = deploymentConfigName.replace("-flinksim-", "-flinksim-taskmanager-");
+                console.log(serviceJobManagerName);
+                console.log(serviceTaskManagerName);
+                console.log(deploymentConfigJobManagerName);
+                console.log(deploymentConfigTaskManagerName);
+                createJobManagerService(req.body, serviceJobManagerName);
+                createTaskManagerService(req.body, serviceTaskManagerName);
+                deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
+                deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
                 createNewJob(req.body);
                 // res.send({alerts:'New test created.'});
                 res.redirect('/new');
@@ -111,7 +125,12 @@ app.get('/running_jobs', (req, res) => {
             console.log(jobs);
             let runningJobs = getRunningJobs(jobs);
             let queueNames = getQueueNames();
-            res.send({data: jobs, runningJobs: runningJobs, queueNames: queueNames, deletedQueueNames: deletedQueueNames});
+            res.send({
+                data: jobs,
+                runningJobs: runningJobs,
+                queueNames: queueNames,
+                deletedQueueNames: deletedQueueNames
+            });
         })
 });
 
@@ -136,11 +155,318 @@ app.get('/completed_jobs', (req, res) => {
         })
 });
 
+async function removeJob(name) {
+    const client = await openshiftRestClient(settings);
+    console.log("Trying to remove job:");
+    console.log(name);
+    const job = await client.apis.batch.v1.ns(projectName).jobs(name).delete();
+    console.log("Job:", job);
+    return job;
+}
 
-async function createNewJob(values){
+async function getJobs() {
+    const client = await openshiftRestClient(settings);
+    // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
+    const completedJobs = await client.apis.batch.v1.ns(projectName).jobs().get();
+    // console.log("Completed Jobs:", completedJobs);
+    return completedJobs;
+}
+
+function getQueueNames() {
+    let jobsQueueNames = [];
+    for (let name in jobsQueue) {
+        if (jobsQueue.hasOwnProperty(name) && !deletedQueueNames.has(jobsQueue[name].jobName)) {
+            console.log("Adding to queue:");
+            console.log(jobsQueue[name].jobName);
+            console.log(deletedQueueNames);
+            jobsQueueNames.push(jobsQueue[name].jobName);
+        }
+    }
+    return jobsQueueNames;
+}
+
+function getRunningJobs(jobs) {
+    let runningJobs = [];
+    for (let job in jobs.body.items) {
+        // console.log("aaa");
+        // console.log(job);
+        if (jobs.body.items.hasOwnProperty(job)) {
+            if (jobs.body.items[job].status.succeeded !== 1) {
+                runningJobs.push(jobs.body.items[job].metadata.name);
+                console.log(jobs.body.items[job].metadata.name);
+            }
+        }
+    }
+    console.log("Running jobs: ");
+    console.log(runningJobs);
+    return runningJobs;
+}
+
+async function createJobManagerService(values, serviceJobManagerName) {
+    const client = await openshiftRestClient(settings);
+    //job-appsimulator-flinksim-a
+    // let name = values.jobName.replace("job-", "srv-jobmanager-");
+// POST /api/v1/namespaces/$NAMESPACE/services HTTP/1.1
+    let a = await client.api.v1.ns(projectName).services.post({
+        "body":
+            {
+                "apiVersion": "v1",
+                "kind": "Service",
+                "metadata": {
+                    "name": serviceJobManagerName,
+                    "namespace": projectName
+                },
+                "spec": {
+                    "ports": [
+                        {
+                            "name": "6123",
+                            "port": 6123,
+                            "targetPort": 6123
+                        },
+                        {
+                            "name": "6124",
+                            "port": 6124,
+                            "targetPort": 6124
+                        },
+                        {
+                            "name": "8081",
+                            "port": 8081,
+                            "targetPort": 8081
+                        },
+                        {
+                            "name": "9250",
+                            "port": 9250,
+                            "targetPort": 9250
+                        }
+                    ],
+                    "selector": {
+                        "group": "appsimulator-flink-jobmanager"
+                    }
+                },
+                "status": {
+                    "loadBalancer": {}
+                }
+            }
+    });
+}
+
+async function createTaskManagerService(values, serviceTaskManagerName) {
+    const client = await openshiftRestClient(settings);
+    //job-appsimulator-flinksim-a
+    // let name = values.jobName.replace("job-", "srv-jobmanager-");
+// POST /api/v1/namespaces/$NAMESPACE/services HTTP/1.1
+    let a = await client.api.v1.ns(projectName).services.post({
+        "body":
+            {
+                "apiVersion": "v1",
+                "kind": "Service",
+                "metadata": {
+                    "name": serviceTaskManagerName,
+                    "namespace": projectName
+                },
+                "spec": {
+                    "ports": [
+                        {
+                            "name": "9250",
+                            "port": 9250,
+                            "targetPort": 9250
+                        },
+                        {
+                            "name": "6121",
+                            "port": 6121,
+                            "targetPort": 6121
+                        },
+                        {
+                            "name": "6122",
+                            "port": 6122,
+                            "targetPort": 6122
+                        }
+                    ],
+                    "selector": {
+                        "group": "appsimulator-flink-taskmanager"
+                    }
+                },
+                "status": {
+                    "loadBalancer": {}
+                }
+            }
+    });
+}
+
+async function deployJobManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
+    const client = await openshiftRestClient(settings);
+    // console.log(name);
+    // console.log(serviceName);
+    // GET /oapi/v1/namespaces/$NAMESPACE/deploymentconfigs HTTP/1.1
+    // let b = await client.oapi.v1.ns(projectName).deploymentconfigs.get();
+    // console.log(b);
+    //POST /oapi/v1/namespaces/$NAMESPACE/deploymentconfigs HTTP/1.1
+//POST /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs HTTP/1.1
+    let a = await client.apis.app.v1.ns(projectName).deploymentconfigs.post({
+            "body": {
+                "apiVersion": "apps.openshift.io/v1",
+                "kind": "DeploymentConfig",
+                "metadata": {
+                    "name": deploymentConfigJobManagerName,
+                    "namespace": projectName
+                },
+                "spec": {
+                    "replicas": 1,
+                    "strategy": {
+                        "resources": {}
+                    },
+                    "template": {
+                        "metadata": {
+                            "labels": {
+                                "deploymentconfig": deploymentConfigJobManagerName,
+                                "app": "appsimulator",
+                                "group": "appsimulator-flink-jobmanager"
+                            }
+                        },
+                        "spec": {
+                            "containers": [
+                                {
+                                    "image": " ",
+                                    "name": "jobmanager",
+                                    "args": [
+                                        "jobmanager"
+                                    ],
+                                    "env": [
+                                        {
+                                            "name": "JOB_MANAGER_RPC_ADDRESS",
+                                            "value": serviceJobManagerName
+                                        }
+                                    ],
+                                    "ports": [
+                                        {
+                                            "containerPort": 6123
+                                        },
+                                        {
+                                            "containerPort": 6124
+                                        },
+                                        {
+                                            "containerPort": 8081
+                                        },
+                                        {
+                                            "containerPort": 9250
+                                        }
+                                    ],
+                                    "resources": {}
+                                }
+                            ]
+                        }
+                    },
+                    "restartPolicy": "Never",
+                    "triggers": [
+                        {
+                            "type": "ConfigChange"
+                        },
+                        {
+                            "type": "ImageChange",
+                            "imageChangeParams": {
+                                "automatic": true,
+                                "containerNames": [
+                                    "jobmanager"
+                                ],
+                                "from": {
+                                    "kind": "ImageStreamTag",
+                                    "name": "is-appsimulator-bench:v1"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "status": {}
+            }
+        }
+    );
+    // return name;
+}
+
+async function deployTaskManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
+    const client = await openshiftRestClient(settings);
+    let a = await client.apis.app.v1.ns(projectName).deploymentconfigs.post({
+        "body": {
+            "apiVersion": "apps.openshift.io/v1",
+            "kind": "DeploymentConfig",
+            "metadata": {
+                "name": deploymentConfigJobManagerName,
+                "namespace": projectName
+            },
+            "spec": {
+                "replicas": 1,
+                "strategy": {
+                    "resources": {}
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "deploymentconfig": deploymentConfigJobManagerName,
+                            "app": "appsimulator",
+                            "group": "appsimulator-flink-taskmanager"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "taskmanager"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "JOB_MANAGER_RPC_ADDRESS",
+                                        "value": serviceJobManagerName
+                                    }
+                                ],
+                                "image": " ",
+                                "name": "taskmanager",
+                                "ports": [
+                                    {
+                                        "containerPort": 6121
+                                    },
+                                    {
+                                        "containerPort": 6122
+                                    },
+                                    {
+                                        "containerPort": 9250
+                                    }
+                                ],
+                                "resources": {}
+                            }
+                        ]
+                    }
+                },
+                "restartPolicy": "Never",
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "taskmanager"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "is-appsimulator-bench:v1"
+                            }
+                        }
+                    }
+                ]
+            },
+            "status": {}
+        }
+
+
+    });
+}
+
+async function createNewJob(values) {
     const client = await openshiftRestClient(settings);
     // console.log(values);
-    let a = await client.api.v1.ns(projectName).configmaps.get();
+    // let a = await client.api.v1.ns(projectName).configmaps.get();
     // console.log(a);
     // console.log(a.body.items);
     // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
@@ -164,11 +490,11 @@ async function createNewJob(values){
         console.log(error);
         // Error handling here!
     });
-    // console.log(b);
-    // /api/v1/namespaces/$NAMESPACE/configmaps
 
     // let jobname = values.jobType + values.jobName;
     // console.log(jobname);
+
+    // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
     client.apis.batch.v1.ns(projectName).jobs.post({
             "body": {
                 "apiVersion": "batch/v1",
@@ -205,43 +531,6 @@ async function createNewJob(values){
                                             "name": "JOB_MANAGER_RPC_ADDRESS",
                                             "value": "srv-jobmanager"
                                         }
-                                        // {
-                                        //     "name": "pageLoadTime",
-                                        //     "value": values.pageLoadTime
-                                        // },
-                                        // {
-                                        //     "name": "numberOfRequestsPerLoad",
-                                        //     "value": values.numberOfRequestsPerLoad
-                                        // },
-                                        // {
-                                        //     "name": "memoryUsage",
-                                        //     "value": values.memoryUsage
-                                        // },
-                                        // {
-                                        //     "name": "pageSize",
-                                        //     "value": values.pageSize
-                                        // },
-                                        // {
-                                        //     "name": "numberOfRequests",
-                                        //     "value": values.numberOfRequests
-                                        // },
-                                        // {
-                                        //     "name": "responseSize",
-                                        //     "value": values.responseSize
-                                        // },
-                                        // {
-                                        //     "name": "LATENCY",
-                                        //     "value": values.latency
-                                        // },
-                                        // {
-                                        //     "name": "bandwidth",
-                                        //     "value": values.bandwidth
-                                        // },
-                                        // {
-                                        //     "name": "intervalBetweenRequests",
-                                        //     "value": values.intervalBetweenRequests
-                                        // }
-
                                     ],
                                     "imagePullPolicy": "Always"
                                 }
@@ -262,61 +551,6 @@ async function createNewJob(values){
             }
         }
     );
-}
-
-async function removeJob(name) {
-    const client = await openshiftRestClient(settings);
-    console.log("Trying to remove job:");
-    console.log(name);
-    const job = await client.apis.batch.v1.ns(projectName).jobs(name).delete();
-    console.log("Job:", job);
-    return job;
-}
-
-async function getJobs() {
-    const client = await openshiftRestClient(settings);
-    // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
-    const completedJobs = await client.apis.batch.v1.ns(projectName).jobs().get();
-    // console.log("Completed Jobs:", completedJobs);
-    return completedJobs;
-}
-
-function getQueueNames() {
-    let jobsQueueNames = [];
-    for (let name in jobsQueue) {
-        if (jobsQueue.hasOwnProperty(name)) {
-
-            if(!deletedQueueNames.has(jobsQueue[name].jobName)){
-                console.log("Adding to queue:");
-                console.log(jobsQueue[name].jobName);
-                console.log(deletedQueueNames);
-                jobsQueueNames.push(jobsQueue[name].jobName);
-
-            }
-            // else {
-            //     console.log("Not added to queue:");
-            //     console.log(jobsQueue[name].jobName);
-            // }
-        }
-    }
-    return jobsQueueNames;
-}
-
-function getRunningJobs(jobs) {
-    let runningJobs = [];
-    for (let job in jobs.body.items) {
-        // console.log("aaa");
-        // console.log(job);
-        if (jobs.body.items.hasOwnProperty(job)) {
-            if (jobs.body.items[job].status.succeeded !== 1) {
-                runningJobs.push(jobs.body.items[job].metadata.name);
-                console.log(jobs.body.items[job].metadata.name);
-            }
-        }
-    }
-    console.log("Running jobs: ");
-    console.log(runningJobs);
-    return runningJobs;
 }
 
 function normalizePort(val) {
