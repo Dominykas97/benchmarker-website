@@ -1,7 +1,8 @@
 // const rest = require('../client/rest');
 const express = require('express');
 const app = express();
-
+// const child_process = require("child_process");
+// const sleep = require('sleep');
 app.use(express.json());
 
 const openshiftRestClient = require('openshift-rest-client').OpenshiftClient;
@@ -70,6 +71,8 @@ app.get('/express_backend', (req, res) => {
 
 app.post('/new_job', (req, res) => {
     // console.log(req);
+    // (async () => {
+    //     let jobs = getJobs();
     getJobs()
         .then(jobs => {
             // console.log(jobs);
@@ -101,11 +104,39 @@ app.post('/new_job', (req, res) => {
                 patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
                 patchFlinkConfigMap(serviceJobManagerName);
                 patchConfigMap(req.body);
-                createJobManagerService(req.body, serviceJobManagerName);
+                // await new Promise(r => setTimeout(r, 60000)).then(() => {
+
                 createTaskManagerService(req.body, serviceTaskManagerName);
-                deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
-                deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
-                createNewJob(req.body, serviceJobManagerName);
+                // });
+                // child_process.execSync("sleep 60");
+                // await new Promise(r => setTimeout(r, 60000)).then(() => {
+                // setTimeout(function() { createJobManagerService(req.body, serviceJobManagerName); }, 60000);
+                createJobManagerService(req.body, serviceJobManagerName);
+                // });
+                // await new Promise(r => setTimeout(r, 120000)).then(() => {
+                // deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
+                // });
+                // child_process.execSync("sleep 60");
+                // await new Promise(r => setTimeout(r, 180000)).then(() => {
+                setTimeout(function() { deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName); }, 10000);
+                // child_process.execSync("sleep 60");
+                setTimeout(function() { deployTaskManager(req.body, serviceJobManagerName, deploymentConfigTaskManagerName);}, 20000);
+                // deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
+                // });
+                // child_process.execSync("sleep 60");
+                // await new Promise(r => setTimeout(r, 240000)).then(() => {
+                setTimeout(function() { createNewJob(req.body, serviceJobManagerName); }, 30000);
+                // createNewJob(req.body, serviceJobManagerName);
+                // });
+
+                // createTaskManagerService(req.body, serviceTaskManagerName);
+                // createJobManagerService(req.body, serviceJobManagerName);
+                // deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
+                // deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
+                // console.log("STATUS:");
+                // console.log(getServiceStatus(serviceJobManagerName));
+                // console.log(getServiceStatus(serviceTaskManagerName));
+                // createNewJob(req.body, serviceJobManagerName);
                 // res.send({alerts:'New test created.'});
                 res.redirect('/new');
             } else {
@@ -114,8 +145,9 @@ app.post('/new_job', (req, res) => {
                 console.log("Jobs queue:");
                 console.log(jobsQueue);
             }
-        });
-    return true;
+        }
+    )
+    // })();
 });
 
 app.post('/remove_job', (req, res) => {
@@ -166,6 +198,13 @@ app.get('/completed_jobs', (req, res) => {
                     if (jobs.body.items[job].status.succeeded === 1) {
                         jobsNames.push(jobs.body.items[job].metadata.name);
                         // console.log(jobs.body.items[job].metadata.name);
+                        let a = jobsServicesDeploymentConfigs.shift();
+                        if (typeof a !== 'undefined'){
+                            removeService(a.serviceTaskManagerName);
+                            removeService(a.serviceJobManagerName);
+                            removeDeploymentConfig(a.deploymentConfigTaskManagerName);
+                            removeDeploymentConfig(a.deploymentConfigJobManagerName);
+                        }
                     }
                 }
             }
@@ -222,12 +261,19 @@ function getRunningJobs(jobs) {
     return runningJobs;
 }
 
-async function removeService(name){
+async function removeService(name) {
     const client = await openshiftRestClient(settings);
 //    DELETE /api/v1/namespaces/$NAMESPACE/services/$NAME HTTP/1.1
     let a = await client.api.v1.ns(projectName).services(name).delete();
 }
-async function removeDeploymentConfig(name){
+
+async function getServiceStatus(name) {
+    const client = await openshiftRestClient(settings);
+    // GET /api/v1/namespaces/$NAMESPACE/services/$NAME/status HTTP/1.1
+    return await client.api.v1.ns(projectName).services(name).status.get();
+}
+
+async function removeDeploymentConfig(name) {
     const client = await openshiftRestClient(settings);
     //DELETE /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs/$NAME HTTP/1.1
     let a = await client.apis.app.v1.ns(projectName).deploymentconfigs(name).delete();
@@ -279,6 +325,11 @@ async function createJobManagerService(values, serviceJobManagerName) {
                 }
             }
     });
+    await new Promise(r => setTimeout(r, 60000)).then(() => {
+        // Do something after the sleep!
+        console.log("Sleeping");
+        return a
+    });
 }
 
 async function createTaskManagerService(values, serviceTaskManagerName) {
@@ -322,6 +373,11 @@ async function createTaskManagerService(values, serviceTaskManagerName) {
                 }
             }
     });
+    // sleep.sleep(20);
+    // await new Promise(r => setTimeout(r, 60000)).then(() => {
+    //     // Do something after the sleep!
+    //     return a
+    // });
 }
 
 async function deployJobManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
@@ -412,6 +468,10 @@ async function deployJobManager(values, serviceJobManagerName, deploymentConfigJ
         }
     );
     // return name;
+    await new Promise(r => setTimeout(r, 60000)).then(() => {
+        // Do something after the sleep!
+        return a
+    });
 }
 
 async function deployTaskManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
@@ -489,8 +549,10 @@ async function deployTaskManager(values, serviceJobManagerName, deploymentConfig
             },
             "status": {}
         }
-
-
+    });
+    await new Promise(r => setTimeout(r, 60000)).then(() => {
+        // Do something after the sleep!
+        return a
     });
 }
 
@@ -507,7 +569,7 @@ async function patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManage
                         "scrape_configs:\n" +
                         "  - job_name: 'benchmarker'\n" +
                         "    static_configs:\n" +
-                        "      - targets: ['srv-jobmanager:9250', 'srv-taskmanager:9250', '"+serviceJobManagerName+":9250', '"+serviceTaskManagerName+":9250'"+"]"
+                        "      - targets: ['srv-jobmanager:9250', 'srv-taskmanager:9250', '" + serviceJobManagerName + ":9250', '" + serviceTaskManagerName + ":9250'" + "]"
 
                 }
             }
