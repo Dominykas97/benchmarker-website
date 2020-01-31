@@ -4,15 +4,38 @@ class Completed extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: null
+            data: null,
+            podsNames: null
+            // color: 'white',
+            // selected: 0
+            // ClickedButton: ''
         };
+        // this.state = {buttonstate: false};
+        // this.handleClick = e => {
+        //     e.preventDefault();
+        //
+        //     this.setState({buttonstate: !this.state.buttonstate});
+        // };
     }
+
+    // handleChange(id) {
+    //
+    //     this.setState({ClickedButton: id});
+    //     this.props.selectedtype.bind(this, id)();
+    //
+    // }
+    // changeColor(index) {
+    //     this.setState({ activeIndex: index })
+    //     let newColor = this.state.color === 'white' ? 'orange' : 'white';
+    //     this.setState({color: newColor});
+    //     // this.handleClick = this.handleClick.bind(this)
+    // }
 
     componentDidMount() {
         this.callBackendAPI()
-            .then(res => this.setState({data: res.data, jobsNames: res.jobsNames}))
+            .then(res => this.setState({data: res.data, jobsNames: res.jobsNames, podsNames: res.podsNames}))
             .catch(err => console.log(err));
-        console.log("componentDidMount");
+        // console.log("componentDidMount");
         // console.log(this.state.data);
     }
 
@@ -25,12 +48,22 @@ class Completed extends Component {
             throw Error(body.message)
         }
         // console.log(body[0]);
-        console.log("callBackendAPI");
+        // console.log("callBackendAPI");
         console.log(body);
         return body;
     }
 
+    toggleSelected = (name) => {
+        console.log(name);
+        this.setState({selectedItemIndex: name});
+    };
+
     render() {
+        let podName = this.state.podsNames || "";
+        let sourceCpu = "https://grafana-openshift-monitoring.ida.dcs.gla.ac.uk/d-solo/6581e46e4e5c7ba40a07646395ef7b23/k8s-compute-resources-pod?refresh=10s&orgId=1&var-datasource=prometheus&var-namespace=2262804sproject&var-pod="
+            + podName[this.state.selectedItemIndex] + "&panelId=0";
+        let sourceMemory = "https://grafana-openshift-monitoring.ida.dcs.gla.ac.uk/d-solo/6581e46e4e5c7ba40a07646395ef7b23/k8s-compute-resources-pod?refresh=10s&orgId=1&var-datasource=prometheus&var-namespace=2262804sproject&var-pod="
+            + podName[this.state.selectedItemIndex] + "&panelId=0";
         let data = this.state.data || 'there is no data';
         let names = this.state.jobsNames;
         if (typeof names === 'undefined' || names.length === 0) {
@@ -38,6 +71,7 @@ class Completed extends Component {
         }
         console.log(data);
         console.log(this.state.jobsNames);
+        console.log(podName["job-appsimulator-flinksim-a2"]);
         // let names = Object;
         if (data !== 'there is no data') {
             console.log(data);
@@ -45,22 +79,28 @@ class Completed extends Component {
             // names = data.body.items
         }
         return (
+
             <div className="body">
                 <div className="leftSide">
                     <h2>Completed tests</h2>
-                    {names.map(name => <div key={name}>{name}</div>)}
-                </div>
+                    {names.map(name => <div>
+                        {/*<button key={name}*/}
+                        <button key={name} onClick={() => this.toggleSelected(name)}
+                                style={this.state.selectedItemIndex === name ? {background: 'orange'} : {background: 'white'}}
+                            // style={this.props.active ? 'orange' : 'white'}
+                            // style={{background: this.state.color}}
+                            // onClick={this.changeColor.bind(null, this)}
+                            // onClick={this.props.onToggle}
+                        >{name}</button>
 
+                    </div>)}
+                </div>
                 <div className="graphs">
                     <ul>
-                        <iframe title={"cpu"}
-                            src="https://snapshot.raintank.io/dashboard-solo/snapshot/z6kkrYtaDcRasUsCE5eCWoKShc2YWnAl?orgId=2&panelId=0&from=1572980548597&to=1572984148597&var-datasource=&var-namespace=2262804sproject"
-                            width="600" height="300" frameBorder="0"/>
+                        <iframe title={"cpu"} src={sourceCpu} width="600" height="300" frameBorder="0"/>
                     </ul>
                     <ul>
-                        <iframe title={"memory"}
-                            src="https://snapshot.raintank.io/dashboard-solo/snapshot/z6kkrYtaDcRasUsCE5eCWoKShc2YWnAl?orgId=2&panelId=2&from=1572980548597&to=1572984148597&var-datasource=&var-namespace=2262804sproject"
-                            width="600" height="300" frameBorder="0"/>
+                        <iframe title={"memory"} src={sourceMemory} width="600" height="300" frameBorder="0"/>
                     </ul>
                 </div>
             </div>
@@ -70,3 +110,4 @@ class Completed extends Component {
 }
 
 export default Completed;
+
