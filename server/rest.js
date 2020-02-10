@@ -2,6 +2,7 @@ module.exports = class Rest {
     constructor() {
         this.openshiftRestClient = require('openshift-rest-client').OpenshiftClient;
         this.projectName = '2262804sproject';
+        this.configMapName = "cm-appsimulator";
         this.settings = {};
 
         this.settings.config = {
@@ -31,15 +32,15 @@ module.exports = class Rest {
         });
     }
 
-    async createNewJob(values, serviceJobManagerName) {
+    async createNewJob(values, serviceJobManagerName, imageStreamStartName) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
-        let a = await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
+        await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
                 "body": {
                     "apiVersion": "batch/v1",
                     "kind": "Job",
                     "metadata": {
                         "name": values.jobName,
-                        "namespace": "2262804sproject"
+                        "namespace": this.projectName
                     },
                     "spec": {
                         "parallelism": 1,
@@ -56,7 +57,7 @@ module.exports = class Rest {
                                 "containers": [
                                     {
                                         "name": "flinksim",
-                                        "image": "docker-registry.default.svc:5000/2262804sproject/is-appsimulator-start:v1",
+                                        "image": "docker-registry.default.svc:5000/2262804sproject/" + imageStreamStartName+":v1",
                                         "resources": {},
                                         "volumeMounts": [
                                             {
@@ -77,7 +78,7 @@ module.exports = class Rest {
                                     {
                                         "name": "config-files",
                                         "configMap": {
-                                            "name": "cm-appsimulator"
+                                            "name": this.configMapName
                                         }
                                     }
                                 ],
@@ -111,8 +112,106 @@ module.exports = class Rest {
         return podName;
     }
 
+    async createStartImageStream(imageStreamStartName) {
+        // POST /apis/image.openshift.io/v1/namespaces/$NAMESPACE/imagestreams HTTP/1.1
+        await this.client.apis.image.v1.ns(this.projectName).imagestreams.post({
+            "body":
+                {
+                    "kind": "ImageStream",
+                    "apiVersion": "image.openshift.io/v1",
+                    "metadata": {
+                        "name": imageStreamStartName,
+                        "namespace": this.projectName
+                    }
+                }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+    async createStartBuildConfig(serviceJobManagerName, buildConfigStartName, imageStreamStartName) {
+        // POST /apis/build.openshift.io/v1/namespaces/$NAMESPACE/buildconfigs HTTP/1.1
+        await this.client.apis.build.v1.ns(this.projectName).buildconfigs.post({
+            "body":
+                {
+                    "kind": "BuildConfig",
+                    "apiVersion": "build.openshift.io/v1",
+                    "metadata": {
+                        "name": buildConfigStartName,
+                        "namespace": this.projectName
+                    },
+                    "spec": {
+                        "runPolicy": "Serial",
+                        "source": {
+                            "dockerfile":
+                                "FROM flink\n" +
+                                "RUN wget http://nfswebhost-2262804sproject.ida.dcs.gla.ac.uk/benchmarker/config/flink-conf.yaml -O conf/flink-conf.yaml\n" +
+                                "RUN mv opt/flink-metrics-prometheus-* lib/ && chgrp -Rf root /opt/flink && chmod -Rf 775 /opt/flink\n" +
+                                "RUN wget http://nfswebhost-2262804sproject.ida.dcs.gla.ac.uk/benchmarker/target/benchmarker-0.1.jar -O ./benchmarker-0.1.jar\n" +
+                                "CMD [\"/bin/bash\", \"-c\", \"flink run -m " + serviceJobManagerName + ":8081 benchmarker-0.1.jar\"]\n"
+                        },
+                        "strategy": {
+                            "type": "Docker",
+                            "dockerStrategy": null
+                        },
+                        "output": {
+                            "to": {
+                                "kind": "ImageStreamTag",
+                                "name": imageStreamStartName + ":v1"
+                            }
+                        }
+                    }
+                }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+    async buildStartBuildConfig(buildConfigStartName) {
+        //    POST /apis/build.openshift.io/v1/namespaces/$NAMESPACE/builds HTTP/1.1
+        //POST /apis/build.openshift.io/v1/namespaces/$NAMESPACE/buildconfigs/$NAME/instantiate HTTP/1.1
+        await this.client.apis.build.v1.ns(this.projectName).buildconfigs(buildConfigStartName).instantiate.post(
+            //     {
+            //     "body":{
+            //         "kind": "Build",
+            //         "apiVersion": "build.openshift.io/v1",
+            //         "metadata": {
+            //             "annotations": {
+            //                 "openshift.io/build-config.name": buildConfigStartName
+            //             },
+            //             "namespace": this.projectName,
+            //             "labels": {
+            //                 "buildconfig": buildConfigStartName,
+            //                 "openshift.io/build-config.name": buildConfigStartName,
+            //                 "openshift.io/build.start-policy": "Serial"
+            //             }
+            //         }
+            //     }
+            //
+            // }
+            {
+                "body":
+                    {
+                        "kind": "BuildRequest",
+                        "apiVersion": "build.openshift.io/v1",
+                        "metadata": {
+                            "name": buildConfigStartName
+                        },
+                        "triggeredBy": [
+                            {
+                                "message": "Manually triggered"
+                            }
+                        ]
+                    }
+            }
+        ).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+
     async patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName) {
-        let oldConfigFull = await this.client.api.v1.ns(this.projectName).configmaps('cm-appsimulator').get();
+        let oldConfigFull = await this.client.api.v1.ns(this.projectName).configmaps(this.configMapName).get();
         let oldConfigPrometheus = oldConfigFull.body.data['prometheus.yml'];
         // console.log("Old config");
         // console.log(oldConfigPrometheus);
@@ -138,7 +237,7 @@ module.exports = class Rest {
         let targets = targetsBuilder.join("', '");
         // console.log(targets);
 
-        let b = this.client.api.v1.ns(this.projectName).configmaps('cm-appsimulator').patch({
+        this.client.api.v1.ns(this.projectName).configmaps(this.configMapName).patch({
                 "body": {
                     "data": {
                         "prometheus.yml":
@@ -159,7 +258,7 @@ module.exports = class Rest {
     }
 
     async patchFlinkConfigMap(serviceJobManagerName) {
-        let b = await this.client.api.v1.ns(this.projectName).configmaps('cm-appsimulator').patch({
+        await this.client.api.v1.ns(this.projectName).configmaps(this.configMapName).patch({
                 "body": {
                     "data": {
                         "flink-conf.yaml": "jobmanager.rpc.address: " + serviceJobManagerName + "\n" +
@@ -185,7 +284,7 @@ module.exports = class Rest {
 
     async patchConfigMap(values) {
         // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
-        let b = await this.client.api.v1.ns(this.projectName).configmaps('cm-appsimulator').patch({
+        await this.client.api.v1.ns(this.projectName).configmaps(this.configMapName).patch({
                 "body": {
                     "data": {
                         "components.yaml": "- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: " + values.memoryUsage
@@ -208,14 +307,14 @@ module.exports = class Rest {
 
     async removeService(name) {
         // DELETE /api/v1/namespaces/$NAMESPACE/services/$NAME HTTP/1.1
-        let a = await this.client.api.v1.ns(this.projectName).services(name).delete().catch(function (error) {
+        await this.client.api.v1.ns(this.projectName).services(name).delete().catch(function (error) {
             console.log(error);
         });
     }
 
     async removeReplicationController(name) {
         // DELETE /api/v1/namespaces/$NAMESPACE/replicationcontrollers/$NAME HTTP/1.1
-        let a = await this.client.api.v1.ns(this.projectName).replicationcontrollers(name + "-1").delete().catch(function (error) {
+        await this.client.api.v1.ns(this.projectName).replicationcontrollers(name + "-1").delete().catch(function (error) {
             console.log(error);
         });
     }
@@ -229,7 +328,7 @@ module.exports = class Rest {
 
     async patchPodStatus(name) {
         // PATCH /api/v1/namespaces/$NAMESPACE/pods/$NAME/status HTTP/1.1
-        let b = await this.client.api.v1.ns(this.projectName).pods(name).patch({
+        await this.client.api.v1.ns(this.projectName).pods(name).patch({
                 "body": {
                     "status": {
                         "phase": "Completed"
@@ -243,7 +342,7 @@ module.exports = class Rest {
 
     async createTaskManagerService(values, serviceTaskManagerName) {
         // POST /api/v1/namespaces/$NAMESPACE/services HTTP/1.1
-        let a = await this.client.api.v1.ns(this.projectName).services.post({
+        await this.client.api.v1.ns(this.projectName).services.post({
             "body":
                 {
                     "apiVersion": "v1",
@@ -285,7 +384,7 @@ module.exports = class Rest {
 
     async createJobManagerService(values, serviceJobManagerName) {
         // POST /api/v1/namespaces/$NAMESPACE/services HTTP/1.1
-        let a = await this.client.api.v1.ns(this.projectName).services.post({
+        await this.client.api.v1.ns(this.projectName).services.post({
             "body":
                 {
                     "apiVersion": "v1",
@@ -332,14 +431,14 @@ module.exports = class Rest {
 
     async removeDeploymentConfig(name) {
         //DELETE /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs/$NAME HTTP/1.1
-        let a = await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs(name).delete().catch(function (error) {
+        await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs(name).delete().catch(function (error) {
             console.log(error);
         }); // {qs: {propagationPolicy: 'Orphan'}}
     }
 
     async deployJobManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
         //POST /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs HTTP/1.1
-        let a = await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
+        await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
                 "body": {
                     "apiVersion": "apps.openshift.io/v1",
                     "kind": "DeploymentConfig",
@@ -422,7 +521,7 @@ module.exports = class Rest {
     }
 
     async deployTaskManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
-        this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
+        await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
             "body": {
                 "apiVersion": "apps.openshift.io/v1",
                 "kind": "DeploymentConfig",

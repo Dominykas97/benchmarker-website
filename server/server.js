@@ -75,16 +75,23 @@ app.post('/new_job', async (req, res) => {
 
         console.log("/new_job jobsServicesDeploymentConfigs:");
         console.log(jobsServicesDeploymentConfigs);
-        rest.patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
-        rest.patchFlinkConfigMap(serviceJobManagerName);
-        rest.patchConfigMap(req.body);
-        rest.createTaskManagerService(req.body, serviceTaskManagerName);
-        rest.createJobManagerService(req.body, serviceJobManagerName);
+        await rest.patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
+        await rest.patchFlinkConfigMap(serviceJobManagerName);
+        await rest.patchConfigMap(req.body);
+        await rest.createTaskManagerService(req.body, serviceTaskManagerName);
+        await rest.createJobManagerService(req.body, serviceJobManagerName);
+        await rest.createStartImageStream(getImageStreamStartName(req.body.jobName));
+        await rest.createStartBuildConfig(serviceJobManagerName,getBuildConfigStartName(req.body.jobName), getImageStreamStartName(req.body.jobName));
+        setTimeout(function () {
+            rest.buildStartBuildConfig(getBuildConfigStartName(req.body.jobName));
+        }, 5000);
         setTimeout(function () {
             rest.deployJobManager(req.body, serviceJobManagerName, getDeploymentConfigJobManagerName(req.body.jobName));
-        }, 10000);
+        }, 30000);
         setTimeout(function () {
             rest.deployTaskManager(req.body, serviceJobManagerName, getDeploymentConfigTaskManagerName(req.body.jobName));
+        }, 40000);
+        setTimeout(function () {
             request.post(
                 'http://prom-2262804sproject.ida.dcs.gla.ac.uk/-/reload',
                 {json: {}},
@@ -94,10 +101,10 @@ app.post('/new_job', async (req, res) => {
                     }
                 }
             );
-        }, 20000);
+        }, 50000);
         setTimeout(function () {
-            rest.createNewJob(req.body, serviceJobManagerName);
-        }, 30000);
+            rest.createNewJob(req.body, serviceJobManagerName, getImageStreamStartName(req.body.jobName));
+        }, 60000);
 
         res.redirect('/new');
     } else {
@@ -238,6 +245,20 @@ function getRunningJobs(jobs) {
     console.log("Running jobs: ");
     console.log(runningJobs);
     return runningJobs;
+}
+
+function getBuildConfigStartName(jobName) {
+    // job-appsimulator-flinksim-p1
+//    "bc-appsimulator-start
+    let buildConfigName = jobName.replace("job-", "bc-");
+    return buildConfigName.replace("appsimulator-flinksim-", "appsimulator-start-");
+}
+
+function getImageStreamStartName(jobName) {
+    // job-appsimulator-flinksim-p1
+// "is-appsimulator-start:v1"
+    let buildConfigName = jobName.replace("job-", "is-");
+    return buildConfigName.replace("appsimulator-flinksim-", "appsimulator-start-");
 }
 
 function getDeploymentConfigJobManagerName(jobName) {
