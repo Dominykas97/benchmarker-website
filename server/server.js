@@ -1,5 +1,8 @@
 // const rest = require('../client/rest');
+const fsPromises = require('fs').promises;
 const express = require('express');
+const request = require('request');
+
 const app = express();
 // const child_process = require("child_process");
 // const sleep = require('sleep');
@@ -36,34 +39,35 @@ let deletedQueueNames = new Set();
 
 async function checkRunningJob() {
     // let podName;
-    for (let job in jobsServicesDeploymentConfigs) {
-        if (job != null) {
-            getPodName(jobsServicesDeploymentConfigs[job].deploymentConfigTaskManagerName).then(podName => {
-                // if(podName!=null) {
-                console.log("Pod name:");
-                console.log(podName);
-                // }
-            })
+    // await fsPromises.writeFile('/nfs/pods.json', 'data to write');
+    // for (let job in jobsServicesDeploymentConfigs) {
+    //     if (job != null) {
+    //         getPodName(jobsServicesDeploymentConfigs[job].deploymentConfigTaskManagerName).then(podName => {
+    //             // if(podName!=null) {
+    //             console.log("Pod name:");
+    //             console.log(podName);
+    //             // }
+    //         })
+    //     }
+    // }
+    let jobs = await getJobs();
+    // .then(jobs => {
+    // console.log(jobs);
+    let runningJobs = getRunningJobs(jobs);
+    console.log("Checking running jobs:");
+    console.log(runningJobs);
+    if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
+        let jobParameters = jobsQueue.shift();
+        while (deletedQueueNames.has(jobParameters.jobName)) {
+            jobParameters = jobsQueue.shift();
         }
+        console.log("Checking parameters:");
+        console.log(jobParameters);
+        patchConfigMap(jobParameters);
+        createNewJob(jobParameters);
+        // res.redirect('/new');
     }
-    getJobs()
-        .then(jobs => {
-            // console.log(jobs);
-            let runningJobs = getRunningJobs(jobs);
-            console.log("Checking running jobs:");
-            console.log(runningJobs);
-            if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
-                let jobParameters = jobsQueue.shift();
-                while (deletedQueueNames.has(jobParameters.jobName)) {
-                    jobParameters = jobsQueue.shift();
-                }
-                console.log("Checking parameters:");
-                console.log(jobParameters);
-                patchConfigMap(jobParameters);
-                createNewJob(jobParameters);
-                // res.redirect('/new');
-            }
-        });
+    // });
 }
 
 setInterval(checkRunningJob, 10000);
@@ -80,104 +84,79 @@ app.get('/express_backend', (req, res) => {
     res.send({express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
 });
 
-function getDeploymentConfigJobManagerName(jobName){
+function getDeploymentConfigJobManagerName(jobName) {
     let deploymentConfigName = jobName.replace("job-", "dc-");
     return deploymentConfigName.replace("-flinksim-", "-flinksim-jobmanager-");
 }
-function getDeploymentConfigTaskManagerName(jobName){
+
+function getDeploymentConfigTaskManagerName(jobName) {
     let deploymentConfigName = jobName.replace("job-", "dc-");
     return deploymentConfigName.replace("-flinksim-", "-flinksim-taskmanager-");
 }
-app.post('/new_job', (req, res) => {
-    // console.log(req);
-    // (async () => {
-    //     let jobs = getJobs();
-    getJobs()
-        .then(jobs => {
-                // console.log(jobs);
-                let runningJobs = getRunningJobs(jobs);
-                console.log("running jobs:");
-                console.log(runningJobs);
-                req.body.jobName = req.body.jobType + req.body.jobName;
-                if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
 
-                    let serviceJobManagerName = req.body.jobName.replace("job-", "srv-jobmanager-");
-                    let serviceTaskManagerName = req.body.jobName.replace("job-", "srv-taskmanager-");
-                    // let deploymentConfigName = req.body.jobName.replace("job-", "dc-");
-                    // let deploymentConfigJobManagerName = deploymentConfigName.replace("-flinksim-", "-flinksim-jobmanager-");
-                    // let deploymentConfigTaskManagerName = deploymentConfigName.replace("-flinksim-", "-flinksim-taskmanager-");
-                    console.log(serviceJobManagerName);
-                    console.log(serviceTaskManagerName);
-                    // console.log(deploymentConfigJobManagerName);
-                    // console.log(deploymentConfigTaskManagerName);
-                    // let name = JSON.stringify(req.body.jobName);
-                    jobsServicesDeploymentConfigs[req.body.jobName] = {
-                        "jobName": req.body.jobName,
-                        "serviceJobManagerName": serviceJobManagerName,
-                        "serviceTaskManagerName": serviceTaskManagerName,
-                        "deploymentConfigJobManagerName": getDeploymentConfigJobManagerName(req.body.jobName),//deploymentConfigJobManagerName,
-                        "deploymentConfigTaskManagerName": getDeploymentConfigTaskManagerName(req.body.jobName)//deploymentConfigTaskManagerName
-                    };
-                    // console.log(a);
-                    console.log("/new_job jobsServicesDeploymentConfigs:");
-                    console.log(jobsServicesDeploymentConfigs);
-                    // jobsServicesDeploymentConfigs[req.body.jobName] = jobDescription;
-                    //     key:req.body.jobName,
-                    //     value:a
-                    // });
-                    patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
-                    patchFlinkConfigMap(serviceJobManagerName);
-                    patchConfigMap(req.body);
-                    // await new Promise(r => setTimeout(r, 60000)).then(() => {
+function getServiceTaskManagerName(jobName) {
+    return jobName.replace("job-", "srv-taskmanager-");
+}
 
-                    createTaskManagerService(req.body, serviceTaskManagerName);
-                    // });
-                    // child_process.execSync("sleep 60");
-                    // await new Promise(r => setTimeout(r, 60000)).then(() => {
-                    // setTimeout(function() { createJobManagerService(req.body, serviceJobManagerName); }, 60000);
-                    createJobManagerService(req.body, serviceJobManagerName);
-                    // });
-                    // await new Promise(r => setTimeout(r, 120000)).then(() => {
-                    // deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
-                    // });
-                    // child_process.execSync("sleep 60");
-                    // await new Promise(r => setTimeout(r, 180000)).then(() => {
-                    setTimeout(function () {
-                        deployJobManager(req.body, serviceJobManagerName, getDeploymentConfigJobManagerName(req.body.jobName));
-                    }, 10000);
-                    // child_process.execSync("sleep 60");
-                    setTimeout(function () {
-                        deployTaskManager(req.body, serviceJobManagerName, getDeploymentConfigTaskManagerName(req.body.jobName));
-                    }, 20000);
-                    // deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
-                    // });
-                    // child_process.execSync("sleep 60");
-                    // await new Promise(r => setTimeout(r, 240000)).then(() => {
-                    setTimeout(function () {
-                        createNewJob(req.body, serviceJobManagerName);
-                    }, 30000);
-                    // createNewJob(req.body, serviceJobManagerName);
-                    // });
+function getServiceJobManagerName(jobName) {
+    return jobName.replace("job-", "srv-jobmanager-");
+}
 
-                    // createTaskManagerService(req.body, serviceTaskManagerName);
-                    // createJobManagerService(req.body, serviceJobManagerName);
-                    // deployTaskManager(req.body, serviceTaskManagerName, deploymentConfigTaskManagerName);
-                    // deployJobManager(req.body, serviceJobManagerName, deploymentConfigJobManagerName);
-                    // console.log("STATUS:");
-                    // console.log(getServiceStatus(serviceJobManagerName));
-                    // console.log(getServiceStatus(serviceTaskManagerName));
-                    // createNewJob(req.body, serviceJobManagerName);
-                    // res.send({alerts:'New test created.'});
-                    res.redirect('/new');
-                } else {
-                    jobsQueue.push(req.body);
-                    // res.send({alerts:'New test added to a queue.'});
-                    console.log("Jobs queue:");
-                    console.log(jobsQueue);
+app.post('/new_job', async (req, res) => {
+    let jobs = await getJobs();
+    let runningJobs = getRunningJobs(jobs);
+    console.log("running jobs:");
+    console.log(runningJobs);
+
+    req.body.jobName = req.body.jobType + req.body.jobName;
+    if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
+
+        let serviceJobManagerName = getServiceJobManagerName(req.body.jobName);//req.body.jobName.replace("job-", "srv-jobmanager-");
+        let serviceTaskManagerName = getServiceTaskManagerName(req.body.jobName);//req.body.jobName.replace("job-", "srv-taskmanager-");
+        console.log(serviceJobManagerName);
+        console.log(serviceTaskManagerName);
+
+        jobsServicesDeploymentConfigs[req.body.jobName] = {
+            "jobName": req.body.jobName,
+            "serviceJobManagerName": serviceJobManagerName,
+            "serviceTaskManagerName": serviceTaskManagerName,
+            "deploymentConfigJobManagerName": getDeploymentConfigJobManagerName(req.body.jobName),//deploymentConfigJobManagerName,
+            "deploymentConfigTaskManagerName": getDeploymentConfigTaskManagerName(req.body.jobName)//deploymentConfigTaskManagerName
+        };
+
+        console.log("/new_job jobsServicesDeploymentConfigs:");
+        console.log(jobsServicesDeploymentConfigs);
+        patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
+        patchFlinkConfigMap(serviceJobManagerName);
+        patchConfigMap(req.body);
+        createTaskManagerService(req.body, serviceTaskManagerName);
+        createJobManagerService(req.body, serviceJobManagerName);
+        setTimeout(function () {
+            deployJobManager(req.body, serviceJobManagerName, getDeploymentConfigJobManagerName(req.body.jobName));
+        }, 10000);
+        setTimeout(function () {
+            deployTaskManager(req.body, serviceJobManagerName, getDeploymentConfigTaskManagerName(req.body.jobName));
+            request.post(
+                'http://prom-2262804sproject.ida.dcs.gla.ac.uk/-/reload',
+                {json: {}},
+                function (error, response, body) {
+                    if (!error && response.statusCode === 200) {
+                        console.log(body);
+                    }
                 }
-            }
-        )
-    // })();
+            );
+        }, 20000);
+        setTimeout(function () {
+            createNewJob(req.body, serviceJobManagerName);
+        }, 30000);
+
+        res.redirect('/new');
+    } else {
+        jobsQueue.push(req.body);
+        // res.send({alerts:'New test added to a queue.'});
+        console.log("Jobs queue:");
+        console.log(jobsQueue);
+    }
 });
 
 app.post('/remove_job', (req, res) => {
@@ -204,19 +183,19 @@ app.post('/remove_from_queue', (req, res) => {
     // res.redirect('/new');
 });
 
-app.get('/running_jobs', (req, res) => {
-    getJobs()
-        .then(jobs => {
-            console.log(jobs);
-            let runningJobs = getRunningJobs(jobs);
-            let queueNames = getQueueNames();
-            res.send({
-                data: jobs,
-                runningJobs: runningJobs,
-                queueNames: queueNames,
-                deletedQueueNames: deletedQueueNames
-            });
-        })
+app.get('/running_jobs', async (req, res) => {
+    let jobs = await getJobs();
+    // .then(jobs => {
+    console.log(jobs);
+    let runningJobs = getRunningJobs(jobs);
+    let queueNames = getQueueNames();
+    res.send({
+        data: jobs,
+        runningJobs: runningJobs,
+        queueNames: queueNames,
+        deletedQueueNames: deletedQueueNames
+    });
+    // })
 });
 
 app.get('/completed_jobs', async (req, res) => {
@@ -226,38 +205,43 @@ app.get('/completed_jobs', async (req, res) => {
     let jobsNames = [];
     let podsNames = {};
     let jobs = jobItems.body.items;
+    let podsJSON = await fsPromises.readFile('/nfs/pods.json');
+    let knownPodsNames = JSON.parse(podsJSON.toString());
+    console.log("Pod names from JSON");
+    console.log(knownPodsNames);
     for (let job in jobs) {
-        // console.log("aaa");
-        // console.log(job);
         if (jobs.hasOwnProperty(job)) {
             if (jobs[job].status.succeeded === 1) {
                 jobsNames.push(jobs[job].metadata.name);
-                // if(jobsServicesDeploymentConfigs[jobs[job].metadata.name].has("deploymentConfigTaskManagerName")){
-                //     let podName = getPodName(jobsServicesDeploymentConfigs[jobs[job].metadata.name].deploymentConfigTaskManagerName);
-                //     console.log("POD NAME");
-                //     console.log(podName);
-                // }
-                // console.log(jobs.body.items[job].metadata.name);
-                let podName = await getPodName(getDeploymentConfigTaskManagerName(jobs[job].metadata.name));//completedJob.deploymentConfigTaskManagerName);
-                //.then(podName => {
+                let deploymentConfigTaskManagerName = getDeploymentConfigTaskManagerName(jobs[job].metadata.name);
+                let deploymentConfigJobManagerName = getDeploymentConfigJobManagerName(jobs[job].metadata.name);
+                let serviceTaskManagerName = getServiceTaskManagerName(jobs[job].metadata.name);
+                let serviceJobManagerName = getServiceJobManagerName(jobs[job].metadata.name);
+                let podTaskManagerName;
+                let podJobManagerName;
+                if (jobs[job].metadata.name in knownPodsNames) {
+                    podTaskManagerName = knownPodsNames[jobs[job].metadata.name];
+                } else {
+                    podTaskManagerName = await getPodName(deploymentConfigTaskManagerName);//completedJob.deploymentConfigTaskManagerName);
+                    podJobManagerName = await getPodName(deploymentConfigJobManagerName);//completedJob.deploymentConfigTaskManagerName);
+                    knownPodsNames[jobs[job].metadata.name] = podTaskManagerName;
+                    removeService(serviceTaskManagerName);
+                    removeService(serviceJobManagerName);
+                    // removeReplicationController(deploymentConfigTaskManagerName);
+                    // removeReplicationController(deploymentConfigJobManagerName);
+                    removeDeploymentConfig(deploymentConfigTaskManagerName);
+                    removeDeploymentConfig(deploymentConfigJobManagerName);
+                    //.then(podTaskManagerName => {
+                }
                 console.log(jobs[job].metadata.name);
-                console.log(getDeploymentConfigTaskManagerName(jobs[job].metadata.name));
+                console.log(deploymentConfigTaskManagerName);
                 console.log("POD NAME");
-                console.log(podName);
-                podsNames[jobs[job].metadata.name] = podName;
+                console.log(podTaskManagerName);
+                podsNames[jobs[job].metadata.name] = podTaskManagerName;
                 console.log(podsNames);
 
-                let completedJob = jobsServicesDeploymentConfigs[jobs[job].metadata.name];
-                if (typeof completedJob !== 'undefined') {
-                    // if (completedJob.deploymentConfigTaskManagerName != null) {
-                        // })
-                    // }
-                    removeService(completedJob.serviceTaskManagerName);
-                    removeService(completedJob.serviceJobManagerName);
-                    removeDeploymentConfig(completedJob.deploymentConfigTaskManagerName);
-                    removeDeploymentConfig(completedJob.deploymentConfigJobManagerName);
-                    delete jobsServicesDeploymentConfigs[jobs[job].metadata.name];
-                }
+                delete jobsServicesDeploymentConfigs[jobs[job].metadata.name];
+                // }
             }
         }
     }
@@ -265,6 +249,10 @@ app.get('/completed_jobs', async (req, res) => {
     // console.log(jobsNames);
     console.log("PODS NAMESSS");
     console.log(podsNames);
+    console.log("KNOWN PODS NAMESSS");
+    console.log(knownPodsNames);
+    await fsPromises.writeFile('/nfs/pods.json', JSON.stringify(knownPodsNames));
+
     // getPodName().then
     res.send({data: jobs, jobsNames: jobsNames, podsNames: podsNames});
     // }
@@ -369,6 +357,13 @@ async function removeService(name) {
     let a = await client.api.v1.ns(projectName).services(name).delete();
 }
 
+async function removeReplicationController(name) {
+    // openshift.io/deployment-config.name=dc-appsimulator-flinksim-taskmanager-a1
+    const client = await openshiftRestClient(settings);
+//  DELETE /api/v1/namespaces/$NAMESPACE/replicationcontrollers/$NAME HTTP/1.1
+    let a = await client.api.v1.ns(projectName).replicationcontrollers(name + "-1").delete();
+}
+
 async function getServiceStatus(name) {
     const client = await openshiftRestClient(settings);
     // GET /api/v1/namespaces/$NAMESPACE/services/$NAME/status HTTP/1.1
@@ -378,7 +373,7 @@ async function getServiceStatus(name) {
 async function removeDeploymentConfig(name) {
     const client = await openshiftRestClient(settings);
     //DELETE /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs/$NAME HTTP/1.1
-    let a = await client.apis.app.v1.ns(projectName).deploymentconfigs(name).delete({qs: {propagationPolicy: 'Orphan'}});
+    let a = await client.apis.app.v1.ns(projectName).deploymentconfigs(name).delete(); // {qs: {propagationPolicy: 'Orphan'}}
 }
 
 async function createJobManagerService(values, serviceJobManagerName) {
@@ -658,8 +653,50 @@ async function deployTaskManager(values, serviceJobManagerName, deploymentConfig
     });
 }
 
+async function patchPodStatus(name) {
+    const client = await openshiftRestClient(settings);
+// PATCH /api/v1/namespaces/$NAMESPACE/pods/$NAME/status HTTP/1.1
+    let b = await client.api.v1.ns(projectName).pods(name).patch({
+            "body": {
+                "status": {
+                    "phase": "Completed"
+                }
+            }
+        }
+    ).catch(function (error) {
+        console.log(error);
+        // Error handling here!
+    });
+}
+
 async function patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName) {
     const client = await openshiftRestClient(settings);
+    let oldConfigFull = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').get();
+    let oldConfigPrometheus = oldConfigFull.body.data['prometheus.yml'];
+    console.log("Old config");
+    console.log(oldConfigPrometheus);
+
+    const regex = /((\w*-\w*)+:\d*)/gm;
+    let m;
+    let targetsBuilder = [];
+    while ((m = regex.exec(oldConfigPrometheus)) !== null) {
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+
+        // The result can be accessed through the `m`-variable.
+        m.forEach((match, groupIndex) => {
+            console.log(`Found match, group ${groupIndex}: ${match}`);
+            if (groupIndex === 0) {
+                targetsBuilder.push(match);
+            }
+        });
+    }
+    console.log(targetsBuilder);
+    let targets = targetsBuilder.join("', '");
+    console.log(targets);
+
     let b = await client.api.v1.ns(projectName).configmaps('cm-appsimulator').patch({
             "body": {
                 "data": {
@@ -671,7 +708,7 @@ async function patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManage
                         "scrape_configs:\n" +
                         "  - job_name: 'benchmarker'\n" +
                         "    static_configs:\n" +
-                        "      - targets: ['srv-jobmanager:9250', 'srv-taskmanager:9250', '" + serviceJobManagerName + ":9250', '" + serviceTaskManagerName + ":9250'" + "]"
+                        "      - targets: ['" + targets + "', '" + serviceJobManagerName + ":9250', '" + serviceTaskManagerName + ":9250']"
 
                 }
             }

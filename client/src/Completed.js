@@ -63,13 +63,13 @@ class Completed extends Component {
         let sourceCpu = "https://grafana-openshift-monitoring.ida.dcs.gla.ac.uk/d-solo/6581e46e4e5c7ba40a07646395ef7b23/k8s-compute-resources-pod?refresh=10s&orgId=1&var-datasource=prometheus&var-namespace=2262804sproject&var-pod="
             + podName[this.state.selectedItemIndex] + "&panelId=0";
         let sourceMemory = "https://grafana-openshift-monitoring.ida.dcs.gla.ac.uk/d-solo/6581e46e4e5c7ba40a07646395ef7b23/k8s-compute-resources-pod?refresh=10s&orgId=1&var-datasource=prometheus&var-namespace=2262804sproject&var-pod="
-            + podName[this.state.selectedItemIndex] + "&panelId=0";
+            + podName[this.state.selectedItemIndex] + "&panelId=2";
         let data = this.state.data || 'there is no data';
         let names = this.state.jobsNames;
         if (typeof names === 'undefined' || names.length === 0) {
             names = ["There are no completed jobs."]
         }
-        console.log(data);
+        console.log(this.state);
         console.log(this.state.jobsNames);
         console.log(podName["job-appsimulator-flinksim-a2"]);
         // let names = Object;
@@ -97,10 +97,10 @@ class Completed extends Component {
                 </div>
                 <div className="graphs">
                     <ul>
-                        <iframe title={"cpu"} src={sourceCpu} width="600" height="300" frameBorder="0"/>
+                        <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0"/>
                     </ul>
                     <ul>
-                        <iframe title={"memory"} src={sourceMemory} width="600" height="300" frameBorder="0"/>
+                        <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0"/>
                     </ul>
                 </div>
             </div>
