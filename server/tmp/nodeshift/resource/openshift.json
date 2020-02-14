@@ -20,7 +20,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "d093078453f55d593e8f1ca743533ef6e4c3b8b0"
+          "nodeshift/git-commit": "bf7b84e2a7d3646f3500c15deee124d2e7e474cb"
         }
       },
       "spec": {
@@ -60,7 +60,7 @@
             },
             "annotations": {
               "nodeshift/git-branch": "master",
-              "nodeshift/git-commit": "d093078453f55d593e8f1ca743533ef6e4c3b8b0"
+              "nodeshift/git-commit": "bf7b84e2a7d3646f3500c15deee124d2e7e474cb"
             }
           },
           "spec": {
@@ -117,7 +117,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "d093078453f55d593e8f1ca743533ef6e4c3b8b0"
+          "nodeshift/git-commit": "bf7b84e2a7d3646f3500c15deee124d2e7e474cb"
         }
       }
     },

@@ -22,6 +22,15 @@ module.exports = class Rest {
         // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         return this.client.apis.batch.v1.ns(this.projectName).jobs().get().catch(function (error) {
             console.log(error);
+            console.log(error.line);
+        });
+    }
+
+    async getJob(name) {
+        // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs/$NAME HTTP/1.1
+        return this.client.apis.batch.v1.ns(this.projectName).jobs(name).get().catch(function (error) {
+            console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -29,17 +38,18 @@ module.exports = class Rest {
         // DELETE /apis/batch/v1/namespaces/$NAMESPACE/jobs/$NAME HTTP/1.1
         return this.client.apis.batch.v1.ns(this.projectName).jobs(name).delete().catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
-    async createNewJob(values, serviceJobManagerName, imageStreamStartName) {
+    async createNewJob(jobName, serviceJobManagerName, imageStreamStartName) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
                 "body": {
                     "apiVersion": "batch/v1",
                     "kind": "Job",
                     "metadata": {
-                        "name": values.jobName,
+                        "name": jobName,
                         "namespace": this.projectName
                     },
                     "spec": {
@@ -48,7 +58,7 @@ module.exports = class Rest {
                         "template": {
                             "metadata": {
                                 "labels": {
-                                    "deploymentconfig": values.jobName,
+                                    "deploymentconfig": jobName,
                                     "app": "appsimulator",
                                     "group": "2262804s"
                                 }
@@ -57,7 +67,7 @@ module.exports = class Rest {
                                 "containers": [
                                     {
                                         "name": "flinksim",
-                                        "image": "docker-registry.default.svc:5000/2262804sproject/" + imageStreamStartName+":v1",
+                                        "image": "docker-registry.default.svc:5000/2262804sproject/" + imageStreamStartName + ":v1",
                                         "resources": {},
                                         "volumeMounts": [
                                             {
@@ -91,6 +101,7 @@ module.exports = class Rest {
             }
         ).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -98,6 +109,7 @@ module.exports = class Rest {
         // GET /api/v1/namespaces/$NAMESPACE/pods HTTP/1.1
         const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: 'deploymentconfig=' + deploymentConfigName}}).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
         let pods = podsInfo.body.items;
 
@@ -110,6 +122,15 @@ module.exports = class Rest {
             }
         }
         return podName;
+    }
+
+    async removeStartImageStream(imageStreamStartName) {
+        // DELETE /apis/image.openshift.io/v1/namespaces/$NAMESPACE/imagestreams/$NAME HTTP/1.1
+        await this.client.apis.image.v1.ns(this.projectName).imagestreams(imageStreamStartName).delete()
+            .catch(function (error) {
+                console.log(error);
+                console.log(error.line);
+            });
     }
 
     async createStartImageStream(imageStreamStartName) {
@@ -126,7 +147,17 @@ module.exports = class Rest {
                 }
         }).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
+    }
+
+    async removeStartBuildConfig(buildConfigStartName) {
+        // DELETE /apis/build.openshift.io/v1/namespaces/$NAMESPACE/buildconfigs/$NAME HTTP/1.1
+        await this.client.apis.build.v1.ns(this.projectName).buildconfigs(buildConfigStartName).delete()
+            .catch(function (error) {
+                console.log(error);
+                console.log(error.line);
+            });
     }
 
     async createStartBuildConfig(serviceJobManagerName, buildConfigStartName, imageStreamStartName) {
@@ -164,48 +195,29 @@ module.exports = class Rest {
                 }
         }).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
     async buildStartBuildConfig(buildConfigStartName) {
-        //    POST /apis/build.openshift.io/v1/namespaces/$NAMESPACE/builds HTTP/1.1
         //POST /apis/build.openshift.io/v1/namespaces/$NAMESPACE/buildconfigs/$NAME/instantiate HTTP/1.1
-        await this.client.apis.build.v1.ns(this.projectName).buildconfigs(buildConfigStartName).instantiate.post(
-            //     {
-            //     "body":{
-            //         "kind": "Build",
-            //         "apiVersion": "build.openshift.io/v1",
-            //         "metadata": {
-            //             "annotations": {
-            //                 "openshift.io/build-config.name": buildConfigStartName
-            //             },
-            //             "namespace": this.projectName,
-            //             "labels": {
-            //                 "buildconfig": buildConfigStartName,
-            //                 "openshift.io/build-config.name": buildConfigStartName,
-            //                 "openshift.io/build.start-policy": "Serial"
-            //             }
-            //         }
-            //     }
-            //
-            // }
-            {
-                "body":
-                    {
-                        "kind": "BuildRequest",
-                        "apiVersion": "build.openshift.io/v1",
-                        "metadata": {
-                            "name": buildConfigStartName
-                        },
-                        "triggeredBy": [
-                            {
-                                "message": "Manually triggered"
-                            }
-                        ]
-                    }
-            }
-        ).catch(function (error) {
+        await this.client.apis.build.v1.ns(this.projectName).buildconfigs(buildConfigStartName).instantiate.post({
+            "body":
+                {
+                    "kind": "BuildRequest",
+                    "apiVersion": "build.openshift.io/v1",
+                    "metadata": {
+                        "name": buildConfigStartName
+                    },
+                    "triggeredBy": [
+                        {
+                            "message": "Manually triggered"
+                        }
+                    ]
+                }
+        }).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -254,6 +266,7 @@ module.exports = class Rest {
             }
         ).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -279,10 +292,11 @@ module.exports = class Rest {
             }
         ).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
-    async patchConfigMap(values) {
+    async patchComponentsConfigMap(values) {
         // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
         await this.client.api.v1.ns(this.projectName).configmaps(this.configMapName).patch({
                 "body": {
@@ -302,6 +316,7 @@ module.exports = class Rest {
             }
         ).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -309,6 +324,7 @@ module.exports = class Rest {
         // DELETE /api/v1/namespaces/$NAMESPACE/services/$NAME HTTP/1.1
         await this.client.api.v1.ns(this.projectName).services(name).delete().catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -316,6 +332,7 @@ module.exports = class Rest {
         // DELETE /api/v1/namespaces/$NAMESPACE/replicationcontrollers/$NAME HTTP/1.1
         await this.client.api.v1.ns(this.projectName).replicationcontrollers(name + "-1").delete().catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -323,6 +340,7 @@ module.exports = class Rest {
         // GET /api/v1/namespaces/$NAMESPACE/services/$NAME/status HTTP/1.1
         return await this.client.api.v1.ns(this.projectName).services(name).status.get().catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -337,10 +355,11 @@ module.exports = class Rest {
             }
         ).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
-    async createTaskManagerService(values, serviceTaskManagerName) {
+    async createTaskManagerService(serviceTaskManagerName) {
         // POST /api/v1/namespaces/$NAMESPACE/services HTTP/1.1
         await this.client.api.v1.ns(this.projectName).services.post({
             "body":
@@ -379,10 +398,11 @@ module.exports = class Rest {
                 }
         }).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
-    async createJobManagerService(values, serviceJobManagerName) {
+    async createJobManagerService(serviceJobManagerName) {
         // POST /api/v1/namespaces/$NAMESPACE/services HTTP/1.1
         await this.client.api.v1.ns(this.projectName).services.post({
             "body":
@@ -426,6 +446,7 @@ module.exports = class Rest {
                 }
         }).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
@@ -433,10 +454,11 @@ module.exports = class Rest {
         //DELETE /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs/$NAME HTTP/1.1
         await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs(name).delete().catch(function (error) {
             console.log(error);
+            console.log(error.line);
         }); // {qs: {propagationPolicy: 'Orphan'}}
     }
 
-    async deployJobManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
+    async deployJobManager(serviceJobManagerName, deploymentConfigJobManagerName) {
         //POST /apis/apps.openshift.io/v1/namespaces/$NAMESPACE/deploymentconfigs HTTP/1.1
         await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
                 "body": {
@@ -517,10 +539,11 @@ module.exports = class Rest {
             }
         ).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
 
-    async deployTaskManager(values, serviceJobManagerName, deploymentConfigJobManagerName) {
+    async deployTaskManager(serviceJobManagerName, deploymentConfigJobManagerName) {
         await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
             "body": {
                 "apiVersion": "apps.openshift.io/v1",
@@ -596,7 +619,7 @@ module.exports = class Rest {
             }
         }).catch(function (error) {
             console.log(error);
+            console.log(error.line);
         });
     }
-
 };
