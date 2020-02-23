@@ -79,29 +79,44 @@ class Completed extends Component {
             // names = data.body.items
         }
         return (
+            <div class="container-fluid">
+                {/*<div className="leftSide">*/}
+                <div class="row justify-content-sm-start">
+                    <div class="col-4">
+                        <h2>Completed tests</h2>
+                        {names.map(name => <div>
+                            {/*<button key={name}*/}
+                            <div class="btn-group-vertical">
 
-            <div className="body">
-                <div className="leftSide">
-                    <h2>Completed tests</h2>
-                    {names.map(name => <div>
-                        {/*<button key={name}*/}
-                        <button key={name} onClick={() => this.toggleSelected(name)}
-                                style={this.state.selectedItemIndex === name ? {background: 'orange'} : {background: 'white'}}
-                            // style={this.props.active ? 'orange' : 'white'}
-                            // style={{background: this.state.color}}
-                            // onClick={this.changeColor.bind(null, this)}
-                            // onClick={this.props.onToggle}
-                        >{name}</button>
+                                <button type="button" class="btn btn-secondary" key={name}
+                                        onClick={() => this.toggleSelected(name)}
+                                    // style={this.state.selectedItemIndex === name ? {background: 'orange'} : {background: 'white'}}
+                                    // style={this.props.active ? 'orange' : 'white'}
+                                    // style={{background: this.state.color}}
+                                    // onClick={this.changeColor.bind(null, this)}
+                                    // onClick={this.props.onToggle}
+                                >{name}</button>
+                            </div>
 
-                    </div>)}
-                </div>
-                <div className="graphs">
-                    <ul>
-                        <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0"/>
-                    </ul>
-                    <ul>
-                        <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0"/>
-                    </ul>
+                        </div>)}
+                    </div>
+                    <div class="col-8">
+                        <ul>
+                            <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0"/>
+                        </ul>
+                        <ul>
+                            <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0"/>
+                        </ul>
+                    </div>
+
+                    {/*</div>*/}
+                    {/*<div className="graphs">*/}
+                    {/*    <ul>*/}
+                    {/*        <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0"/>*/}
+                    {/*    </ul>*/}
+                    {/*    <ul>*/}
+                    {/*        <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0"/>*/}
+                    {/*    </ul>*/}
                 </div>
             </div>
 

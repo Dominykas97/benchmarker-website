@@ -94,14 +94,33 @@ class App extends Component {
             <HashRouter>
                 <div>
                     {/*<h1>Simple SPA</h1>*/}
-                    <ul className="header">
-                        <li id="loadingDocks">LoadingDocks</li>
-                        <li><NavLink exact to="/">Tests</NavLink></li>
-                        <li><NavLink to="/new">Run new tests</NavLink></li>
-                        <li><NavLink to="/completed">Completed</NavLink></li>
-                        <li><NavLink to="/">{this.state.data}</NavLink></li>
-                        {/*<li><NavLink to="/login">Login</NavLink></li>*/}
-                    </ul>
+                    <nav className="navbar navbar-expand-lg navbar-light bg-primary">
+                        <a className="navbar-brand">LoadingDocks</a>
+                        <button className="navbar-toggler" type="button" data-toggle="collapse"
+                                data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                            <span className="navbar-toggler-icon"></span>
+                        </button>
+                        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+                            <div className="navbar-nav">
+                                {/*<a className="nav-item nav-link active">Home <span*/}
+                                {/*    className="sr-only">(current)</span></a>*/}
+                                <NavLink exact to="/" className="nav-item nav-link">Running tests</NavLink>
+                                <NavLink to="/new" className="nav-item nav-link">Run new tests</NavLink>
+                                <NavLink to="/completed" className="nav-item nav-link">Completed</NavLink>
+                                <NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>
+                                {/*<a className="nav-item nav-link disabled" href="#">Disabled</a>*/}
+                            </div>
+                        </div>
+                    </nav>
+                    {/*<ul className="panel-heading">*/}
+                    {/*    <li id="loadingDocks">LoadingDocks</li>*/}
+                    {/*    <NavLink exact to="/">Tests</NavLink>*/}
+                    {/*    <NavLink to="/new">Run new tests</NavLink>*/}
+                    {/*    <NavLink to="/completed">Completed</NavLink>*/}
+                    {/*    <NavLink to="/">{this.state.data}</NavLink>*/}
+                    {/*    /!*<li><NavLink to="/login">Login</NavLink></li>*!/*/}
+                    {/*</ul>*/}
                     <div className="content">
                         <Route exact path="/" component={Tests}/>
                         <Route path="/new" component={RunNew}/>

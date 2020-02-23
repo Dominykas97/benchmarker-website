@@ -87,11 +87,11 @@ class Tests extends Component {
         console.log(this.state.queueNames);
 
         return (
-            <div>
+            <div class="container-fluid">
                 <h2>Running tests</h2>
                 {runningJobsNames.map(name =>
                     <div key="runningTests">{name}
-                        {runningTestsButtonShown ? (<button onClick={() => this.callRemoveRunningTest(name)}>
+                        {runningTestsButtonShown ? (<button type="button" class="btn btn-outline-danger" onClick={() => this.callRemoveRunningTest(name)}>
                             Remove
                         </button>) : null}
                     </div>)}
@@ -99,7 +99,7 @@ class Tests extends Component {
                 <h2>Tests in queue</h2>
                 {queueNames.map(name =>
                     <div key={"testsInQueue"+name}>{name}
-                        {queueButtonShown ? (<button onClick={() => this.callRemoveFromQueue(name)}>
+                        {queueButtonShown ? (<button type="button" class="btn btn-secondary" onClick={() => this.callRemoveFromQueue(name)}>
                             Remove
                         </button>) : null}</div>)}
             </div>

@@ -33,11 +33,12 @@ class RunNew extends Component {
     // }
     render() {
         return (
-            <div>
+            <div class="container-fluid">
                 <h2>Configuring a new test</h2>
                 <Formik
                     initialValues={{
                         jobType: "job-appsimulator-flinksim-",
+                        vbCarJobName: "123abc",
                         jobName: 'abc123',
                         pageLoadTime: '3',
                         numberOfRequestsPerLoad: '200',
@@ -49,6 +50,7 @@ class RunNew extends Component {
                         bandwidth: '1000',
                         intervalBetweenRequests: '10'
                     }}
+                    enableReinitialize={true}
                     validate={values => {
                         const errors = {};
                         // if (!values.pageLoadTime) {
@@ -60,7 +62,7 @@ class RunNew extends Component {
                         // }
                         return errors;
                     }}
-                    onSubmit={(values, {setSubmitting}) => {
+                    onSubmit={(values) => {
                         setTimeout(() => {
                             fetch('/new_job', {
                                 method: 'POST',
@@ -69,82 +71,101 @@ class RunNew extends Component {
                                 },
                                 body: JSON.stringify(values)
                             });
-                            setSubmitting(false);
+                            // setSubmitting(false);
                         }, 400);
                     }}
                 >
 
-                    {({isSubmitting}) => (
-                        <Form>
-                            <div id={"frm"}>
-                                <label htmlFor="jobType">Job type: </label>
-                                <Field as="select" name="jobType">
-                                    <option value="job-appsimulator-flinksim-">Appsimulator</option>
-                                    <option value="job-appsimulator-flinksim2-">Appsimulator2</option>
-                                    <option value="job-appsimulator-flinksim3-">Appsimulator3</option>
-                                </Field>
-                                <ErrorMessage name="jobType" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="jobName">Job name: </label>
-                                <Field type="jobName" name="jobName"/>
-                                <ErrorMessage name="jobName" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="pageLoadTime">Page load time: </label>
-                                <Field type="pageLoadTime" name="pageLoadTime"/>
-                                <ErrorMessage name="pageLoadTime" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="numberOfRequestsPerLoad">Number of request per load: </label>
-                                <Field type="numberOfRequestsPerLoad" name="numberOfRequestsPerLoad"/>
-                                <ErrorMessage name="numberOfRequestsPerLoad" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="memoryUsage">Memory usage: </label>
-                                <Field type="memoryUsage" name="memoryUsage"/>
-                                <ErrorMessage name="memoryUsage" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="pageSize">Page size: </label>
-                                <Field type="pageSize" name="pageSize"/>
-                                <ErrorMessage name="pageSize" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="numberOfRequests">Number of requests: </label>
-                                <Field type="numberOfRequests" name="numberOfRequests"/>
-                                <ErrorMessage name="numberOfRequests" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="responseSize">Response size: </label>
-                                <Field type="responseSize" name="responseSize"/>
-                                <ErrorMessage name="responseSize" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="latency">Latency: </label>
-                                <Field type="latency" name="latency"/>
-                                <ErrorMessage name="latency" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="bandwidth">Bandwidth: </label>
-                                <Field type="bandwidth" name="bandwidth"/>
-                                <ErrorMessage name="bandwidth" component="div"/>
-                            </div>
-                            <div id={"frm"}>
-                                <label htmlFor="intervalBetweenRequests">Interval between requests: </label>
-                                <Field type="intervalBetweenRequests" name="intervalBetweenRequests"/>
-                                <ErrorMessage name="intervalBetweenRequests" component="div"/>
-                            </div>
+                    {props => (
+                        <Form className="form-group">
+                            {/*<div className="row justify-content-sm-start">*/}
 
-                            <button type="submit" disabled={isSubmitting}>
+                            <div className="row" id={"frm"}>
+                                <label  className="col-1" htmlFor="jobType">Job type: </label>
+                                {/*<div class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">*/}
+
+
+                                    <Field class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="false" as="select" name="jobType">
+                                        <option value="job-appsimulator-flinksim-">Appsimulator</option>
+                                        <option value="job-vbcar-">Vbcar</option>
+                                    </Field>
+                                    <ErrorMessage name="jobType" component="div"/>
+                                {/*</div>*/}
+                            </div>
+                            {props.values.jobType === "job-appsimulator-flinksim-" && (
+                                <div>
+                                    <div className="row" id={"frm"}>
+                                        <label className="col-1" htmlFor="jobName">Job name: </label>
+                                        <Field type="jobName" name="jobName"/>
+                                        <ErrorMessage name="jobName" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="pageLoadTime">Page load time: </label>
+                                        <Field type="pageLoadTime" name="pageLoadTime"/>
+                                        <ErrorMessage name="pageLoadTime" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="numberOfRequestsPerLoad">Requests per load: </label>
+                                        <Field type="numberOfRequestsPerLoad" name="numberOfRequestsPerLoad"/>
+                                        <ErrorMessage name="numberOfRequestsPerLoad" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="memoryUsage">Memory usage: </label>
+                                        <Field type="memoryUsage" name="memoryUsage"/>
+                                        <ErrorMessage name="memoryUsage" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="pageSize">Page size: </label>
+                                        <Field type="pageSize" name="pageSize"/>
+                                        <ErrorMessage name="pageSize" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="numberOfRequests">Number of requests: </label>
+                                        <Field type="numberOfRequests" name="numberOfRequests"/>
+                                        <ErrorMessage name="numberOfRequests" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="responseSize">Response size: </label>
+                                        <Field type="responseSize" name="responseSize"/>
+                                        <ErrorMessage name="responseSize" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="latency">Latency: </label>
+                                        <Field type="latency" name="latency"/>
+                                        <ErrorMessage name="latency" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="bandwidth">Bandwidth: </label>
+                                        <Field type="bandwidth" name="bandwidth"/>
+                                        <ErrorMessage name="bandwidth" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="intervalBetweenRequests">Interval between requests: </label>
+                                        <Field type="intervalBetweenRequests" name="intervalBetweenRequests"/>
+                                        <ErrorMessage name="intervalBetweenRequests" component="div"/>
+                                    </div>
+                                </div>
+                            )}
+                            {props.values.jobType === "job-vbcar-" && (
+                                <div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1"  htmlFor="vbCarJobName">Job name: </label>
+                                        <Field type="vbCarJobName" name="vbCarJobName"/>
+                                        <ErrorMessage name="vbCarJobName" component="div"/>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button className="row" type="submit" class="btn-primary">
+                                {/*// disabled={isSubmitting}>*/}
                                 Run
                             </button>
                         </Form>
                     )}
                 </Formik>
-                    {/*<form method='POST' action='/remove_job'>*/}
-                    {/*    <button>Remove</button>*/}
-                    {/*</form>*/}
+                {/*<form method='POST' action='/remove_job'>*/}
+                {/*    <button>Remove</button>*/}
+                {/*</form>*/}
             </div>
         )
     };
