@@ -34,6 +34,20 @@ module.exports = class Rest {
         });
     }
 
+    async hasJobSucceeded(name) {
+        // GET /apis/batch/v1/namespaces/$NAMESPACE/jobs/$NAME HTTP/1.1
+        let jobItems = await this.client.apis.batch.v1.ns(this.projectName).jobs(name).get().catch(function (error) {
+            console.log(error);
+            console.log(error.line);
+        });
+        if (typeof jobItems !== 'undefined') {
+            let job = jobItems.body;
+            return (job.status.succeeded === 1)
+        } else {
+            return false;
+        }
+    }
+
     async removeJob(name) {
         // DELETE /apis/batch/v1/namespaces/$NAMESPACE/jobs/$NAME HTTP/1.1
         return this.client.apis.batch.v1.ns(this.projectName).jobs(name).delete().catch(function (error) {
@@ -93,6 +107,107 @@ module.exports = class Rest {
                                     }
                                 ],
                                 "restartPolicy": "Never"
+                            }
+                        }
+                    },
+                    "status": {}
+                }
+            }
+        ).catch(function (error) {
+            console.log(error);
+            console.log(error.line);
+        });
+    }
+    async createNewVbCarJob(jobName) {
+        // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
+        await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
+                "body":{
+                    "kind": "Job",
+                    "apiVersion": "batch/v1",
+                    "metadata": {
+                        "name": jobName,
+                        "namespace": "2262804sproject",
+                        "labels": {
+                            "app": "vbcartraining",
+                            "job-name": jobName,
+                            "jobconfig": jobName
+                        },
+                        "annotations": {
+                            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"batch/v1\",\"kind\":\"Job\",\"metadata\":{\"annotations\":{},\"name\":\"vbcar0\",\"namespace\":\"2262804sproject\"},\"spec\":{\"completions\":1,\"parallelism\":1,\"template\":{\"metadata\":{\"labels\":{\"app\":\"vbcartraining\",\"jobconfig\":\"vbcar0\"}},\"spec\":{\"containers\":[{\"args\":[\"/nfs/tr_rec//jobScripts/vbcar0.job.sh\"],\"command\":[\"bash\"],\"env\":[{\"name\":\"JOB_MANAGER_RPC_ADDRESS\",\"value\":\"srv-jobmanager\"}],\"image\":\"inferislux/ml-conda:v1\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"neumf\",\"resources\":{\"limits\":{\"cpu\":\"6000m\",\"memory\":\"56Gi\",\"nvidia.com/gpu\":1},\"requests\":{\"cpu\":\"3000m\",\"memory\":\"18Gi\",\"nvidia.com/gpu\":1}},\"volumeMounts\":[{\"mountPath\":\"/nfs/\",\"name\":\"nfs-access\"}]}],\"nodeSelector\":{\"node-role.ida/gpu2080ti\":\"true\"},\"restartPolicy\":\"OnFailure\",\"serviceAccount\":\"containerroot\",\"volumes\":[{\"name\":\"nfs-access\",\"persistentVolumeClaim\":{\"claimName\":\"2262804svol1claim\"}}]}}}}\n"
+                        }
+                    },
+                    "spec": {
+                        "parallelism": 1,
+                        "completions": 1,
+                        "backoffLimit": 6,
+                        "template": {
+                            "metadata": {
+                                "creationTimestamp": null,
+                                "labels": {
+                                    "app": "vbcartraining",
+                                    "job-name": jobName,
+                                    "jobconfig": "vbcar0"
+                                }
+                            },
+                            "spec": {
+                                "nodeSelector": {
+                                    "node-role.ida/gpu2080ti": "true"
+                                },
+                                "restartPolicy": "OnFailure",
+                                "serviceAccountName": "containerroot",
+                                "schedulerName": "default-scheduler",
+                                "terminationGracePeriodSeconds": 30,
+                                "securityContext": {
+                                },
+                                "containers": [
+                                    {
+                                        "resources": {
+                                            "limits": {
+                                                "cpu": "6",
+                                                "memory": "56Gi",
+                                                "nvidia.com/gpu": "1"
+                                            },
+                                            "requests": {
+                                                "cpu": "3",
+                                                "memory": "18Gi",
+                                                "nvidia.com/gpu": "1"
+                                            }
+                                        },
+                                        "terminationMessagePath": "/dev/termination-log",
+                                        "name": "neumf",
+                                        "command": [
+                                            "bash"
+                                        ],
+                                        "env": [
+                                            {
+                                                "name": "JOB_MANAGER_RPC_ADDRESS",
+                                                "value": "srv-jobmanager"
+                                            }
+                                        ],
+                                        "imagePullPolicy": "IfNotPresent",
+                                        "volumeMounts": [
+                                            {
+                                                "name": "nfs-access",
+                                                "mountPath": "/nfs/"
+                                            }
+                                        ],
+                                        "terminationMessagePolicy": "File",
+                                        "image": "inferislux/ml-conda:v1",
+                                        "args": [
+                                            "/nfs/tr_rec//jobScripts/vbcar0.job.sh"
+                                        ]
+                                    }
+                                ],
+                                "serviceAccount": "containerroot",
+                                "volumes": [
+                                    {
+                                        "name": "nfs-access",
+                                        "persistentVolumeClaim": {
+                                            "claimName": "2262804svol1claim"
+                                        }
+                                    }
+                                ],
+                                "dnsPolicy": "ClusterFirst"
                             }
                         }
                     },

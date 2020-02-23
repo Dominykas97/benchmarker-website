@@ -49,8 +49,8 @@ async function checkRunningJob() {
         let job = jobItems.body;
         console.log("Last completed job body:");
         console.log(job);
-        console.log(job.status);
-        console.log(job.status.succeeded);
+        // console.log(job.status);
+        // console.log(job.status.succeeded);
         if (!(lastCompletedJobName in knownPodsNames)) {//&& jobs.hasOwnProperty(lastCompletedJobName)
             if (job.status.succeeded === 1) {
                 let lastCompletedJobPodName = await rest.getPodName(getDeploymentConfigTaskManagerName(lastCompletedJobName));
@@ -64,6 +64,11 @@ async function checkRunningJob() {
         }
     }
 
+    // if (await rest.hasJobSucceeded(lastRunningJobName)) {
+    //     lastCompletedJobName = lastRunningJobName;
+    //     lastRunningJobName = null;
+    // }
+
     if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
 
         let jobParameters = jobsQueue.shift();
@@ -72,10 +77,7 @@ async function checkRunningJob() {
         }
         console.log("Checking parameters:");
         console.log(jobParameters);
-        // lastRunningJobName = jobParameters.jobName;
         await prepareAndRunNewJob({"body": jobParameters});
-        // rest.patchConfigMap(jobParameters);
-        // rest.createNewJob(jobParameters);
     }
 }
 
@@ -88,7 +90,7 @@ app.get('/', (req, res) => {
     res.redirect('/express_backend');
 });
 
-// create a GET routeL
+// create a GET route
 app.get('/express_backend', (req, res) => {
     res.send({express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
 });
@@ -150,16 +152,21 @@ app.post('/new_job', async (req, res) => {
     let runningJobs = getRunningJobs(jobs);
     console.log("running jobs:");
     console.log(runningJobs);
+    if(req.body.jobType === "job-appsimulator-flinksim-"){
+        req.body.jobName = req.body.jobType + req.body.jobName;
+        if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
+            await prepareAndRunNewJob(req);
 
-    req.body.jobName = req.body.jobType + req.body.jobName;
-    if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
-        await prepareAndRunNewJob(req);
-
-        res.redirect('/new');
-    } else {
-        jobsQueue.push(req.body);
-        console.log("Jobs queue:");
-        console.log(jobsQueue);
+            res.redirect('/new');
+        } else {
+            jobsQueue.push(req.body);
+            console.log("Jobs queue:");
+            console.log(jobsQueue);
+        }
+    }
+    if(req.body.jobType === "job-vbcar-"){
+        let jobName = req.body.jobType + req.body.vbCarJobName;
+        await rest.createNewVbCarJob(jobName)
     }
 });
 
