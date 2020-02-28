@@ -1,43 +1,3 @@
-// import React, { Component } from "react";
-// import {
-//   Route,
-//   NavLink,
-//   HashRouter
-// } from "react-router-dom";
-// import Tests from "./Tests";
-// import RunNew from "./RunNew";
-// import Completed from "./Completed";
-// import Login from "./Login";
-// import LoginPage from "./LoginPage";
-// 
-// class App extends Component {
-//   render() {
-//     return (
-//       <HashRouter>
-//         <div>
-//           {/*<h1>Simple SPA</h1>*/}
-//           <ul className="header">
-//             <li id="loadingDocks">LoadingDocks</li>
-//             <li><NavLink exact to="/">Tests</NavLink></li>
-//             <li><NavLink to="/new">Run new tests</NavLink></li>
-//             <li><NavLink to="/completed">Completed</NavLink></li>
-//             {/*<li><NavLink to="/login">Login</NavLink></li>*/}
-//           </ul>
-//           <div className="content">
-//             <Route exact path="/" component={Tests}/>
-//             <Route path="/new" component={RunNew}/>
-//             <Route path="/completed" component={Completed}/>
-//             {/*<Route path="/login" component={LoginPage}/>*/}
-//           </div>
-//         </div>
-//       </HashRouter>
-//     );
-//   }
-// }
-//  
-// export default App;
-
-
 import React, {Component} from 'react';
 import {
     Route,
@@ -45,25 +5,9 @@ import {
     HashRouter
 } from "react-router-dom";
 
-
-// import logo from './logo.svg';
-// import './App.css';
-
-
 import Tests from "./Tests";
 import RunNew from "./RunNew";
 import Completed from "./Completed";
-
-
-// import Login from "./Login";
-// import LoginPage from "./LoginPage";
-// const fs = require('fs');
-// const express = require('express');
-
-// var host = process.env.COMPONENT_BACKEND_HOST || '0.0.0.0';
-// var port = process.env.COMPONENT_BACKEND_PORT || 8080;
-// 
-// console.warn(host, port);
 
 class App extends Component {
     state = {
@@ -99,7 +43,11 @@ class App extends Component {
                         <button className="navbar-toggler" type="button" data-toggle="collapse"
                                 data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
                                 aria-expanded="false" aria-label="Toggle navigation">
-                            <span className="navbar-toggler-icon"></span>
+                            {/*<span className="navbar-toggler-icon">*/}
+                            {/*    <NavLink to="/new" className="nav-item nav-link">Run new tests</NavLink>*/}
+                            {/*    <NavLink to="/completed" className="nav-item nav-link">Completed</NavLink>*/}
+                            {/*    <NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>*/}
+                            {/*</span>*/}
                         </button>
                         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
                             <div className="navbar-nav">
@@ -113,14 +61,6 @@ class App extends Component {
                             </div>
                         </div>
                     </nav>
-                    {/*<ul className="panel-heading">*/}
-                    {/*    <li id="loadingDocks">LoadingDocks</li>*/}
-                    {/*    <NavLink exact to="/">Tests</NavLink>*/}
-                    {/*    <NavLink to="/new">Run new tests</NavLink>*/}
-                    {/*    <NavLink to="/completed">Completed</NavLink>*/}
-                    {/*    <NavLink to="/">{this.state.data}</NavLink>*/}
-                    {/*    /!*<li><NavLink to="/login">Login</NavLink></li>*!/*/}
-                    {/*</ul>*/}
                     <div className="content">
                         <Route exact path="/" component={Tests}/>
                         <Route path="/new" component={RunNew}/>

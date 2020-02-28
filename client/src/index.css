@@ -1,68 +1,74 @@
-body {
-  background-color: #282c34;
-  margin: 0;
-  padding: 0;
-}
-h1, h2, p, ul, li {
-  font-family: sans-serif;
-}
-ul.header li {
-  display: inline;
-  list-style-type: none;
-  margin: 0;
-}
-ul.header {
-  background-color: #111;
-  padding: 0;
-  margin: 0
-}
-ul.header li a {
-  color: #FFF;
-  font-weight: bold;
-  text-decoration: none;
-  padding: 20px;
-  display: inline-block;
-}
-.content {
-  background-color: #FFF;
-  padding: 20px;
-  display: flex;
-  flex-direction: row;
-  /*flex-wrap: wrap;*/
-}
-.content h2 {
-  padding: 0;
-  margin: 0;
-}
-.content li {
-  margin-bottom: 10px;
-}
+/*body {*/
+/*  background-color: #282c34;*/
+/*  margin: 0;*/
+/*  padding: 0;*/
+/*}*/
+/*h1, h2, p, ul, li {*/
+/*  font-family: sans-serif;*/
+/*}*/
+/*ul.header li {*/
+/*  display: inline;*/
+/*  list-style-type: none;*/
+/*  margin: 0;*/
+/*}*/
+/*ul.header {*/
+/*  background-color: #111;*/
+/*  padding: 0;*/
+/*  margin: 0*/
+/*}*/
+/*ul.header li a {*/
+/*  color: #FFF;*/
+/*  font-weight: bold;*/
+/*  text-decoration: none;*/
+/*  padding: 20px;*/
+/*  display: inline-block;*/
+/*}*/
+/*.content {*/
+/*  background-color: #FFF;*/
+/*  padding: 20px;*/
+/*  display: flex;*/
+/*  flex-direction: row;*/
+/*  !*flex-wrap: wrap;*!*/
+/*}*/
+/*.content h2 {*/
+/*  padding: 0;*/
+/*  margin: 0;*/
+/*}*/
+/*.content li {*/
+/*  margin-bottom: 10px;*/
+/*}*/
 
-.active {
-  background-color: #ffd41a;
-}
-#loadingDocks{
-  color: #ff782e;
-  font-size: larger;
-  font-weight: bolder;
-  padding: 10px;
-}
-.content .leftSide{
-  float: left;
-}
-.content .graphs{
-  float: right;
-  position: relative;
-  padding-left: 200px;
-}
+/*.active {*/
+/*  background-color: #ffd41a;*/
+/*}*/
+/*#loadingDocks{*/
+/*  color: #ff782e;*/
+/*  font-size: larger;*/
+/*  font-weight: bolder;*/
+/*  padding: 10px;*/
+/*}*/
+/*.content .leftSide{*/
+/*  float: left;*/
+/*}*/
+/*.content .graphs{*/
+/*  float: right;*/
+/*  position: relative;*/
+/*  padding-left: 200px;*/
+/*}*/
 
-#frm
-{
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  /*border: 1px solid #ccc;*/
-  border-radius: 4px;
-  box-sizing: border-box;
+/*#frm*/
+/*{*/
+/*  width: 100%;*/
+/*  padding: 12px 20px;*/
+/*  margin: 8px 0;*/
+/*  display: inline-block;*/
+/*  !*border: 1px solid #ccc;*!*/
+/*  border-radius: 4px;*/
+/*  box-sizing: border-box;*/
+/*}*/
+#content iframe {
+    overflow: hidden;
+}
+.customButton {
+    width: 78px !important;
 }

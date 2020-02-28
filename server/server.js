@@ -35,6 +35,7 @@ async function readPodsFromFile() {
 }
 
 async function checkRunningJob() {
+
     let jobs = await rest.getJobs();
     let runningJobs = getRunningJobs(jobs);
     console.log("Checking running jobs:");
@@ -92,7 +93,7 @@ app.get('/', (req, res) => {
 
 // create a GET route
 app.get('/express_backend', (req, res) => {
-    res.send({express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
+    res.send({express: 'Backend connected'});
 });
 
 async function prepareAndRunNewJob(req) {
@@ -206,12 +207,24 @@ app.get('/running_jobs', async (req, res) => {
     let jobs = await rest.getJobs();
     console.log(jobs);
     let runningJobs = getRunningJobs(jobs);
+    // console.log()
     let queueNames = getQueueNames();
+    let podsNames = {};
+    for(let job in runningJobs) {
+        if(runningJobs.hasOwnProperty(job)) {
+            console.log(job);
+            // let jobName = runningJobs[job].metadata.name;
+            podsNames[runningJobs[job]] = await rest.getPodName(runningJobs[job], "job-name")
+        }
+    }
+    console.log("Pods Names");
+    console.log(podsNames);
     res.send({
         data: jobs,
         runningJobs: runningJobs,
         queueNames: queueNames,
-        deletedQueueNames: deletedQueueNames
+        deletedQueueNames: deletedQueueNames,
+        podsNames: podsNames
     });
 });
 

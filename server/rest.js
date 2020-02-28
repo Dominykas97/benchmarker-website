@@ -132,9 +132,6 @@ module.exports = class Rest {
                             "job-name": jobName,
                             "jobconfig": jobName
                         },
-                        "annotations": {
-                            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"batch/v1\",\"kind\":\"Job\",\"metadata\":{\"annotations\":{},\"name\":\"vbcar0\",\"namespace\":\"2262804sproject\"},\"spec\":{\"completions\":1,\"parallelism\":1,\"template\":{\"metadata\":{\"labels\":{\"app\":\"vbcartraining\",\"jobconfig\":\"vbcar0\"}},\"spec\":{\"containers\":[{\"args\":[\"/nfs/tr_rec//jobScripts/vbcar0.job.sh\"],\"command\":[\"bash\"],\"env\":[{\"name\":\"JOB_MANAGER_RPC_ADDRESS\",\"value\":\"srv-jobmanager\"}],\"image\":\"inferislux/ml-conda:v1\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"neumf\",\"resources\":{\"limits\":{\"cpu\":\"6000m\",\"memory\":\"56Gi\",\"nvidia.com/gpu\":1},\"requests\":{\"cpu\":\"3000m\",\"memory\":\"18Gi\",\"nvidia.com/gpu\":1}},\"volumeMounts\":[{\"mountPath\":\"/nfs/\",\"name\":\"nfs-access\"}]}],\"nodeSelector\":{\"node-role.ida/gpu2080ti\":\"true\"},\"restartPolicy\":\"OnFailure\",\"serviceAccount\":\"containerroot\",\"volumes\":[{\"name\":\"nfs-access\",\"persistentVolumeClaim\":{\"claimName\":\"2262804svol1claim\"}}]}}}}\n"
-                        }
                     },
                     "spec": {
                         "parallelism": 1,
@@ -174,7 +171,7 @@ module.exports = class Rest {
                                             }
                                         },
                                         "terminationMessagePath": "/dev/termination-log",
-                                        "name": "neumf",
+                                        "name": jobName,
                                         "command": [
                                             "bash"
                                         ],
@@ -194,7 +191,7 @@ module.exports = class Rest {
                                         "terminationMessagePolicy": "File",
                                         "image": "inferislux/ml-conda:v1",
                                         "args": [
-                                            "/nfs/tr_rec//jobScripts/vbcar0.job.sh"
+                                            "/nfs/tr_rec//jobScripts/test.job.sh"
                                         ]
                                     }
                                 ],
@@ -220,9 +217,9 @@ module.exports = class Rest {
         });
     }
 
-    async getPodName(deploymentConfigName) {
+    async getPodName(jobName, label="deploymentconfig") {
         // GET /api/v1/namespaces/$NAMESPACE/pods HTTP/1.1
-        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: 'deploymentconfig=' + deploymentConfigName}}).catch(function (error) {
+        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: label +"="+ jobName}}).catch(function (error) {
             console.log(error);
             console.log(error.line);
         });
@@ -375,7 +372,7 @@ module.exports = class Rest {
                             "scrape_configs:\n" +
                             "  - job_name: 'benchmarker'\n" +
                             "    static_configs:\n" +
-                            "      - targets: ['" + targets + "', '" + serviceJobManagerName + ":9250', '" + serviceTaskManagerName + ":9250']"
+                            "      - targets: ['prometheusexporter-zaiqiaoproject.ida.dcs.gla.ac.uk:80','" + targets + "', '" + serviceJobManagerName + ":9250', '" + serviceTaskManagerName + ":9250']"
                     }
                 }
             }

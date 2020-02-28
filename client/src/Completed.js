@@ -6,30 +6,8 @@ class Completed extends Component {
         this.state = {
             data: null,
             podsNames: null
-            // color: 'white',
-            // selected: 0
-            // ClickedButton: ''
         };
-        // this.state = {buttonstate: false};
-        // this.handleClick = e => {
-        //     e.preventDefault();
-        //
-        //     this.setState({buttonstate: !this.state.buttonstate});
-        // };
     }
-
-    // handleChange(id) {
-    //
-    //     this.setState({ClickedButton: id});
-    //     this.props.selectedtype.bind(this, id)();
-    //
-    // }
-    // changeColor(index) {
-    //     this.setState({ activeIndex: index })
-    //     let newColor = this.state.color === 'white' ? 'orange' : 'white';
-    //     this.setState({color: newColor});
-    //     // this.handleClick = this.handleClick.bind(this)
-    // }
 
     componentDidMount() {
         this.callBackendAPI()
@@ -79,44 +57,26 @@ class Completed extends Component {
             // names = data.body.items
         }
         return (
-            <div class="container-fluid">
-                {/*<div className="leftSide">*/}
-                <div class="row justify-content-sm-start">
-                    <div class="col-4">
+            <div className="container-fluid">
+                <div className="row justify-content-sm-start">
+                    <div className="col-2">
                         <h2>Completed tests</h2>
-                        {names.map(name => <div>
-                            {/*<button key={name}*/}
-                            <div class="btn-group-vertical">
-
-                                <button type="button" class="btn btn-secondary" key={name}
-                                        onClick={() => this.toggleSelected(name)}
-                                    // style={this.state.selectedItemIndex === name ? {background: 'orange'} : {background: 'white'}}
-                                    // style={this.props.active ? 'orange' : 'white'}
-                                    // style={{background: this.state.color}}
-                                    // onClick={this.changeColor.bind(null, this)}
-                                    // onClick={this.props.onToggle}
-                                >{name}</button>
+                        {names.map(name =>
+                            <div className="btn-group-vertical" key={name}>
+                                <button type="button" className="btn btn-secondary" key={name}
+                                        onClick={() => this.toggleSelected(name)}>{name}</button>
                             </div>
-
-                        </div>)}
+                        )}
                     </div>
-                    <div class="col-8">
+                    <div className="col-10">
+                        {podName[this.state.selectedItemIndex]}
                         <ul>
-                            <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0"/>
+                            <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0" scrolling="no"/>
                         </ul>
                         <ul>
-                            <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0"/>
+                            <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0" scrolling="no"/>
                         </ul>
                     </div>
-
-                    {/*</div>*/}
-                    {/*<div className="graphs">*/}
-                    {/*    <ul>*/}
-                    {/*        <iframe title={"cpu"} src={sourceCpu} width="600" height="350" frameBorder="0"/>*/}
-                    {/*    </ul>*/}
-                    {/*    <ul>*/}
-                    {/*        <iframe title={"memory"} src={sourceMemory} width="600" height="350" frameBorder="0"/>*/}
-                    {/*    </ul>*/}
                 </div>
             </div>
 

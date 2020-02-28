@@ -2,38 +2,9 @@ import React, {Component} from "react";
 import {Formik, Form, Field, ErrorMessage} from 'formik';
 
 class RunNew extends Component {
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //         // data: null,
-    //         alerts: null
-    //     };
-    // }
-    //
-    // componentDidMount() {
-    //     this.callBackendAPI()
-    //         .then(res => this.setState({alerts: res.alerts}))
-    //         .catch(err => console.log(err));
-    //     console.log("componentDidMount");
-    //     // console.log(this.state.data);
-    // }
-    //
-    // async callBackendAPI() {
-    //     const response = await fetch('/new_job');
-    //     const body = await response.json();
-    //
-    //     if(response.status !== 200) {
-    //
-    //         throw Error(body.message)
-    //     }
-    //     // console.log(body[0]);
-    //     console.log("callBackendAPI");
-    //     console.log(body);
-    //     return body;
-    // }
     render() {
         return (
-            <div class="container-fluid">
+            <div className="container-fluid">
                 <h2>Configuring a new test</h2>
                 <Formik
                     initialValues={{
@@ -78,70 +49,69 @@ class RunNew extends Component {
 
                     {props => (
                         <Form className="form-group">
-                            {/*<div className="row justify-content-sm-start">*/}
-
                             <div className="row" id={"frm"}>
-                                <label  className="col-1" htmlFor="jobType">Job type: </label>
-                                {/*<div class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">*/}
-
-
-                                    <Field class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="false" as="select" name="jobType">
-                                        <option value="job-appsimulator-flinksim-">Appsimulator</option>
-                                        <option value="job-vbcar-">Vbcar</option>
-                                    </Field>
-                                    <ErrorMessage name="jobType" component="div"/>
-                                {/*</div>*/}
+                                <label className="col-1" htmlFor="jobType">Job type: </label>
+                                <Field className="col-1 btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                                       aria-haspopup="false" as="select" name="jobType">
+                                    <option value="job-appsimulator-flinksim-">Appsimulator</option>
+                                    <option value="job-vbcar-">Vbcar</option>
+                                </Field>
+                                <ErrorMessage name="jobType" component="div"/>
                             </div>
                             {props.values.jobType === "job-appsimulator-flinksim-" && (
                                 <div>
                                     <div className="row" id={"frm"}>
                                         <label className="col-1" htmlFor="jobName">Job name: </label>
-                                        <Field type="jobName" name="jobName"/>
+                                        <Field className="col-1" type="jobName" name="jobName"/>
                                         <ErrorMessage name="jobName" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="pageLoadTime">Page load time: </label>
-                                        <Field type="pageLoadTime" name="pageLoadTime"/>
+                                        <Field className="col-1" type="pageLoadTime" name="pageLoadTime"/>
                                         <ErrorMessage name="pageLoadTime" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
-                                        <label className="col-1" htmlFor="numberOfRequestsPerLoad">Requests per load: </label>
-                                        <Field type="numberOfRequestsPerLoad" name="numberOfRequestsPerLoad"/>
+                                        <label className="col-1" htmlFor="numberOfRequestsPerLoad">Requests per
+                                            load: </label>
+                                        <Field className="col-1" type="numberOfRequestsPerLoad"
+                                               name="numberOfRequestsPerLoad"/>
                                         <ErrorMessage name="numberOfRequestsPerLoad" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="memoryUsage">Memory usage: </label>
-                                        <Field type="memoryUsage" name="memoryUsage"/>
+                                        <Field className="col-1" type="memoryUsage" name="memoryUsage"/>
                                         <ErrorMessage name="memoryUsage" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="pageSize">Page size: </label>
-                                        <Field type="pageSize" name="pageSize"/>
+                                        <Field className="col-1" type="pageSize" name="pageSize"/>
                                         <ErrorMessage name="pageSize" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="numberOfRequests">Number of requests: </label>
-                                        <Field type="numberOfRequests" name="numberOfRequests"/>
+                                        <Field className="col-1" type="numberOfRequests" name="numberOfRequests"/>
                                         <ErrorMessage name="numberOfRequests" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="responseSize">Response size: </label>
-                                        <Field type="responseSize" name="responseSize"/>
+                                        <Field className="col-1" type="responseSize" name="responseSize"/>
                                         <ErrorMessage name="responseSize" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="latency">Latency: </label>
-                                        <Field type="latency" name="latency"/>
+                                        <Field className="col-1" type="latency" name="latency"/>
                                         <ErrorMessage name="latency" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
                                         <label className="col-1" htmlFor="bandwidth">Bandwidth: </label>
-                                        <Field type="bandwidth" name="bandwidth"/>
+                                        <Field className="col-1" type="bandwidth" name="bandwidth"/>
                                         <ErrorMessage name="bandwidth" component="div"/>
                                     </div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
-                                        <label className="col-1" htmlFor="intervalBetweenRequests">Interval between requests: </label>
-                                        <Field type="intervalBetweenRequests" name="intervalBetweenRequests"/>
+                                        <label className="col-1" htmlFor="intervalBetweenRequests">Interval between
+                                            requests: </label>
+                                        <Field className="col-1" type="intervalBetweenRequests"
+                                               name="intervalBetweenRequests"/>
                                         <ErrorMessage name="intervalBetweenRequests" component="div"/>
                                     </div>
                                 </div>
@@ -149,17 +119,69 @@ class RunNew extends Component {
                             {props.values.jobType === "job-vbcar-" && (
                                 <div>
                                     <div className="row justify-content-sm-start" id={"frm"}>
-                                        <label className="col-1"  htmlFor="vbCarJobName">Job name: </label>
-                                        <Field type="vbCarJobName" name="vbCarJobName"/>
+                                        <label className="col-1" htmlFor="vbCarJobName">Job name: </label>
+                                        <Field className="col-1" type="vbCarJobName" name="vbCarJobName"/>
                                         <ErrorMessage name="vbCarJobName" component="div"/>
+                                    </div>
+                                    {/*<div className="row justify-content-sm-start" id={"frm"}>*/}
+                                    {/*    <label className="col-1" htmlFor="vbCarModel">Model: </label>*/}
+                                    {/*    /!*<Field type="vbCarModel" name="vbCarModel"/>*!/*/}
+                                    {/*    <Field className="col-1 btn btn-secondary dropdown-toggle" data-toggle="dropdown"*/}
+                                    {/*           aria-haspopup="false" as="select" name="vbCarModel">*/}
+                                    {/*        /!*<option value=".*">everything</option>*!/*/}
+                                    {/*        <option value="VBCAR">VBCAR</option>*/}
+                                    {/*        <option value="Triple2vec">Triple2vec</option>*/}
+                                    {/*        <option value="neumf">neumf</option>*/}
+                                    {/*    </Field>*/}
+                                    {/*    <ErrorMessage name="vbCarModel" component="div"/>*/}
+                                    {/*</div>*/}
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="vbCarDataSet">Data Set: </label>
+                                        {/*<Field type="vbCarDataSet" name="vbCarDataSet"/>*/}
+                                        <Field className="col-1 btn btn-secondary dropdown-toggle"
+                                               data-toggle="dropdown"
+                                               aria-haspopup="false" as="select" name="vbCarDataSet">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="dunnhumby">dunn-humby</option>
+                                            <option value="tafeng">tafeng</option>
+                                        </Field>
+                                        <ErrorMessage name="vbCarDataSet" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="vbCarEmbedSize">Embedding size: </label>
+                                        {/*<Field type="vbCarEmbedSize" name="vbCarEmbedSize"/>*/}
+                                        <Field className="col-1 btn btn-secondary dropdown-toggle"
+                                               data-toggle="dropdown"
+                                               aria-haspopup="false" as="select" name="vbCarEmbedSize">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="32">32</option>
+                                            <option value="64">64</option>
+                                            <option value="128">128</option>
+                                            <option value="256">256</option>
+                                            <option value="512">512</option>
+                                        </Field>
+                                        <ErrorMessage name="vbCarEmbedSize" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-1" htmlFor="vbCarDataSplit">Data split: </label>
+                                        {/*<Field type="vbCarDataSplit" name="vbCarDataSplit"/>*/}
+                                        <Field className="col-1 btn btn-secondary dropdown-toggle"
+                                               data-toggle="dropdown"
+                                               aria-haspopup="false" as="select" name="vbCarDataSplit">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="leave_one_item">leave_one_item</option>
+                                            <option value="leave_one_basket">leave_one_basket</option>
+                                            <option value="temporal">temporal</option>
+                                        </Field>
+                                        <ErrorMessage name="vbCarDataSplit" component="div"/>
                                     </div>
                                 </div>
                             )}
-
-                            <button className="row" type="submit" class="btn-primary">
-                                {/*// disabled={isSubmitting}>*/}
-                                Run
-                            </button>
+                            <div className="row-cols-2">
+                                <button className="col-1  justify-content-center btn btn-primary" type="submit" style={{marginTop: 20}}>
+                                    Run
+                                </button>
+                            </div>
                         </Form>
                     )}
                 </Formik>
