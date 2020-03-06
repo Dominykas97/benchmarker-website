@@ -38,18 +38,22 @@ class App extends Component {
             <HashRouter>
                 <div>
                     {/*<h1>Simple SPA</h1>*/}
-                    <nav className="navbar navbar-expand-lg navbar-light bg-primary">
+                    <nav className="navbar navbar-expand navbar-light bg-primary">
                         <a className="navbar-brand">LoadingDocks</a>
-                        <button className="navbar-toggler" type="button" data-toggle="collapse"
-                                data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                            {/*<span className="navbar-toggler-icon">*/}
-                            {/*    <NavLink to="/new" className="nav-item nav-link">Run new tests</NavLink>*/}
-                            {/*    <NavLink to="/completed" className="nav-item nav-link">Completed</NavLink>*/}
-                            {/*    <NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>*/}
-                            {/*</span>*/}
-                        </button>
-                        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        {/*<button className="navbar-toggler" type="button" data-toggle="collapse"*/}
+                        {/*        data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"*/}
+                        {/*        aria-expanded="false" aria-label="Toggle navigation">*/}
+                        {/*    <span className="navbar-toggler-icon">*/}
+                        {/*        <a className="nav-link" href="/">Running tests</a>*/}
+                        {/*        <a className="nav-link" href="/new">Run new tests</a>*/}
+                        {/*        <a className="nav-link" href="/completed">Completed</a>*/}
+                        {/*        /!*<a className="nav-link" href="/new">{this.state.data}</a>*!/*/}
+                        {/*        /!*    <NavLink to="/new" className="nav-item nav-link">Run new tests</NavLink>*!/*/}
+                        {/*    /!*    <NavLink to="/completed" className="nav-item nav-link">Completed</NavLink>*!/*/}
+                        {/*    /!*    <NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>*!/*/}
+                        {/*    </span>*/}
+                        {/*</button>*/}
+                        {/*<div className="collapse navbar-collapse" id="navbarNavAltMarkup">*/}
                             <div className="navbar-nav">
                                 {/*<a className="nav-item nav-link active">Home <span*/}
                                 {/*    className="sr-only">(current)</span></a>*/}
@@ -59,7 +63,7 @@ class App extends Component {
                                 <NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>
                                 {/*<a className="nav-item nav-link disabled" href="#">Disabled</a>*/}
                             </div>
-                        </div>
+                        {/*</div>*/}
                     </nav>
                     <div className="content">
                         <Route exact path="/" component={Tests}/>

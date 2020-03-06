@@ -148,12 +148,95 @@ async function prepareAndRunNewJob(req) {
     }, 50000);
 }
 
+async function createVbCarConfigFile(configName, dataSet, dataSplit, embedSize) {
+
+    let configFile = {
+        "model": "VBCAR",
+        "config_id": "default",//"vbcar_dunnhumby_leave_one_basket_0_.01_.0005_lrelu_rmsprop_32",
+        "dataset": dataSet,
+        "data_split": dataSplit,
+        "data_split_comment": "options:temporal leave_one_out",
+        "temp_train": 0,
+        "temp_train_comment": "options: 0,10,20,30,40,50,100",
+        "percent": 1,
+        "n_sample": 1000000,
+        "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
+        "late_dim": 512,
+        "emb_dim": embedSize,
+        "n_neg": 5,
+        "batch_size": 256,
+        "alpha": 0.01,
+        "alpha_comment": "options: 0.0001,0.001,0.005,0.01,0.05,0.1,0.5",
+        "user_fea_dim": 512,
+        "item_fea_dim": 512,
+        "device": "gpu",
+        "feature_type": "random",
+        "activator": "lrelu",
+        "activator_comment": "options:relu, tanh",
+        "optimizer": "rmsprop",
+        "optimizer_comment": "options:adam, rmsprop",
+        "lr": 5.0E-4,
+        "lr_comment": "options:0.0001, 0.0025, 0.005, 0.01",
+        "l2_regularization": 0.01,
+        "num_epoch": 120,
+        "result_file": "results.csv",
+        "log_dir": "/logs/",
+        "result_dir": "/results/",
+        "checkpoint_dir": "/checkpoints/",
+        "dataset_dir": "/datasets/",
+        "sample_dir": "/samples/",
+        "run_dir": "/runs/",
+        "root_dir": "/nfs/tr_rec/"
+    };
+
+    // let configFile = {
+    //     "model": "VBCAR",
+    //     "config_id": "default",
+    //     "root_dir": "../",
+    //     "dataset": dataSet,
+    //     "data_split": dataSplit,
+    //     "data_split_comment": "options:temporal leave_one_out",
+    //     "temp_train": 0,
+    //     "temp_train_comment": "options: 0,10,20,30,40,50,100",
+    //     "percent": 1,
+    //     "n_sample": 1000000,
+    //     "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
+    //     "late_dim": 512,
+    //     "emb_dim": embedSize,
+    //     "n_neg": 5,
+    //     "batch_size": 256,
+    //     "alpha": 0.0,
+    //     "alpha_comment": "options: 0.0001,0.001,0.005,0.01,0.05,0.1,0.5",
+    //     "user_fea_dim": 512,
+    //     "item_fea_dim": 512,
+    //     "device": "gpu",
+    //     "feature_type": "random",
+    //     "activator": "lrelu",
+    //     "activator_comment": "options: relu, prelu, lrelu, tanh, sigmoid",
+    //     "optimizer": "rmsprop",
+    //     "optimizer_commen": "options:adam, rmsprop",
+    //     "lr": 0.005,
+    //     "lr_commen": "options:0.0001, 0.0025, 0.005, 0.01",
+    //     "l2_regularization": 0.01,
+    //     "num_epoch": 120,
+    //     "result_file": "result.csv",
+    //     "log_dir": "logs/",
+    //     "result_dir": "results/",
+    //     "checkpoint_dir": "checkpoints/",
+    //     "dataset_dir": "datasets/",
+    //     "sample_dir": "samples/",
+    //     "run_dir": "runs/"
+    // };
+    await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
+
+}
+
 app.post('/new_job', async (req, res) => {
     let jobs = await rest.getJobs();
     let runningJobs = getRunningJobs(jobs);
     console.log("running jobs:");
     console.log(runningJobs);
-    if(req.body.jobType === "job-appsimulator-flinksim-"){
+    if (req.body.jobType === "job-appsimulator-flinksim-") {
         req.body.jobName = req.body.jobType + req.body.jobName;
         if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
             await prepareAndRunNewJob(req);
@@ -165,9 +248,12 @@ app.post('/new_job', async (req, res) => {
             console.log(jobsQueue);
         }
     }
-    if(req.body.jobType === "job-vbcar-"){
+    if (req.body.jobType === "job-vbcar-") {
         let jobName = req.body.jobType + req.body.vbCarJobName;
-        await rest.createNewVbCarJob(jobName)
+        let configName = 'vbcar-' + req.body.vbCarJobName + '.json';
+        await createVbCarConfigFile(configName, req.body.vbCarDataSet, req.body.vbCarDataSplit, req.body.vbCarEmbedSize);
+        console.log(req.body);
+        await rest.createNewVbCarJob(jobName, configName)
     }
 });
 
@@ -180,12 +266,12 @@ async function removeJobDependencies(jobName) {
     await rest.removeStartImageStream(getImageStreamStartName(jobName));
 }
 
-app.post('/remove_job', (req, res) => {
+app.post('/remove_job', async (req, res) => {
     console.log("app.post removing name:");
     let jobName = req.body.name;
     console.log(jobName);
     lastRunningJobName = null;
-    rest.removeJob(jobName);
+    await rest.removeJob(jobName);
     let jobParameters = jobsServicesDeploymentConfigs[jobName];
     if (typeof jobParameters !== 'undefined') {
         removeJobDependencies(jobName);
@@ -210,8 +296,8 @@ app.get('/running_jobs', async (req, res) => {
     // console.log()
     let queueNames = getQueueNames();
     let podsNames = {};
-    for(let job in runningJobs) {
-        if(runningJobs.hasOwnProperty(job)) {
+    for (let job in runningJobs) {
+        if (runningJobs.hasOwnProperty(job)) {
             console.log(job);
             // let jobName = runningJobs[job].metadata.name;
             podsNames[runningJobs[job]] = await rest.getPodName(runningJobs[job], "job-name")

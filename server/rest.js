@@ -118,7 +118,7 @@ module.exports = class Rest {
             console.log(error.line);
         });
     }
-    async createNewVbCarJob(jobName) {
+    async createNewVbCarJob(jobName, configName) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
                 "body":{
@@ -147,9 +147,6 @@ module.exports = class Rest {
                                 }
                             },
                             "spec": {
-                                "nodeSelector": {
-                                    "node-role.ida/gpu2080ti": "true"
-                                },
                                 "restartPolicy": "OnFailure",
                                 "serviceAccountName": "containerroot",
                                 "schedulerName": "default-scheduler",
@@ -160,21 +157,19 @@ module.exports = class Rest {
                                     {
                                         "resources": {
                                             "limits": {
-                                                "cpu": "6",
-                                                "memory": "56Gi",
+                                                "cpu": "1.5",
+                                                "memory": "16Gi",
                                                 "nvidia.com/gpu": "1"
                                             },
                                             "requests": {
-                                                "cpu": "3",
-                                                "memory": "18Gi",
+                                                "cpu": "1",
+                                                "memory": "6Gi",
                                                 "nvidia.com/gpu": "1"
                                             }
                                         },
                                         "terminationMessagePath": "/dev/termination-log",
                                         "name": jobName,
-                                        "command": [
-                                            "bash"
-                                        ],
+
                                         "env": [
                                             {
                                                 "name": "JOB_MANAGER_RPC_ADDRESS",
@@ -190,8 +185,16 @@ module.exports = class Rest {
                                         ],
                                         "terminationMessagePolicy": "File",
                                         "image": "inferislux/ml-conda:v1",
+                                        "command": [
+                                            "yes/envs/py37torch13/bin/python"
+                                            // "bash"
+                                        ],
                                         "args": [
-                                            "/nfs/tr_rec//jobScripts/test.job.sh"
+                                            // yes/envs/py37torch13/bin/python
+                                            "/nfs/tr_rec//src/train_vbcar.py",
+                                            "--config_file",
+                                            "/nfs/tr_rec//configs/"+configName//test.json"//configName//"test.json"
+                                            // "/nfs/tr_rec//jobScripts/test.job.sh"
                                         ]
                                     }
                                 ],
