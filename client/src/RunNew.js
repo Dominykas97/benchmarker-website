@@ -19,10 +19,18 @@ class RunNew extends Component {
                         latency: '10',
                         bandwidth: '1000',
                         intervalBetweenRequests: '10',
-                        vbCarJobName: '123abc',
+                        vbCarJobName: 'v123abc',
                         vbCarDataSet: 'dunnhumby',
                         vbCarEmbedSize: '32',
-                        vbCarDataSplit: "leave_one_item"
+                        vbCarDataSplit: "leave_one_item",
+                        triple2vecJobName: 't123abc',
+                        triple2vecDataSet: 'dunnhumby',
+                        triple2vecEmbedSize: '32',
+                        triple2vecDataSplit: "leave_one_item",
+                        neumfJobName: 'n123abc',
+                        neumfDataSet: 'dunnhumby',
+                        neumfEmbedSize: '32',
+                        neumfDataSplit: "leave_one_item"
                     }}
                     enableReinitialize={true}
                     validate={values => {
@@ -61,6 +69,8 @@ class RunNew extends Component {
                                     aria-haspopup="false" as="select" name="jobType">
                                     <option value="job-appsimulator-flinksim-">Appsimulator</option>
                                     <option value="job-vbcar-">Vbcar</option>
+                                    <option value="job-triple2vec-">Triple2vec</option>
+                                    <option value="job-neumf-">neumf</option>
                                 </Field>
                                 <ErrorMessage name="jobType" component="div"/>
                             </div>
@@ -208,6 +218,144 @@ class RunNew extends Component {
                                             <option value="temporal">temporal</option>
                                         </Field>
                                         <ErrorMessage name="vbCarDataSplit" component="div"/>
+                                    </div>
+                                </div>
+                            )}
+                            {props.values.jobType === "job-triple2vec-" && (
+                                <div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="triple2vecJobName">Job name: </label>
+                                        <Field className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2" type="triple2vecJobName"
+                                               name="triple2vecJobName"/>
+                                        <ErrorMessage name="triple2vecJobName" component="div"/>
+                                    </div>
+                                    {/*<div className="row justify-content-sm-start" id={"frm"}>*/}
+                                    {/*    <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1" htmlFor="triple2vecModel">Model: </label>*/}
+                                    {/*    /!*<Field type="triple2vecModel" name="triple2vecModel"/>*!/*/}
+                                    {/*    <Field className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1 btn btn-secondary dropdown-toggle" data-toggle="dropdown"*/}
+                                    {/*           aria-haspopup="false" as="select" name="triple2vecModel">*/}
+                                    {/*        /!*<option value=".*">everything</option>*!/*/}
+                                    {/*        <option value="triple2vec">triple2vec</option>*/}
+                                    {/*        <option value="Triple2vec">Triple2vec</option>*/}
+                                    {/*        <option value="neumf">neumf</option>*/}
+                                    {/*    </Field>*/}
+                                    {/*    <ErrorMessage name="triple2vecModel" component="div"/>*/}
+                                    {/*</div>*/}
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="triple2vecDataSet">Data Set: </label>
+                                        {/*<Field type="triple2vecDataSet" name="triple2vecDataSet"/>*/}
+                                        <Field
+                                            className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="false" as="select" name="triple2vecDataSet">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="dunnhumby">dunnhumby</option>
+                                            <option value="tafeng">tafeng</option>
+                                        </Field>
+                                        <ErrorMessage name="triple2vecDataSet" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="triple2vecEmbedSize">Embedding size: </label>
+                                        {/*<Field type="triple2vecEmbedSize" name="triple2vecEmbedSize"/>*/}
+                                        <Field
+                                            className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="false" as="select" name="triple2vecEmbedSize">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="32">32</option>
+                                            <option value="64">64</option>
+                                            <option value="128">128</option>
+                                            <option value="256">256</option>
+                                            <option value="512">512</option>
+                                        </Field>
+                                        <ErrorMessage name="triple2vecEmbedSize" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="triple2vecDataSplit">Data split: </label>
+                                        {/*<Field type="triple2vecDataSplit" name="triple2vecDataSplit"/>*/}
+                                        <Field
+                                            className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="false" as="select" name="triple2vecDataSplit">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="leave_one_item">leave_one_item</option>
+                                            <option value="leave_one_basket">leave_one_basket</option>
+                                            <option value="temporal">temporal</option>
+                                        </Field>
+                                        <ErrorMessage name="triple2vecDataSplit" component="div"/>
+                                    </div>
+                                </div>
+                            )}
+                            {props.values.jobType === "job-neumf-" && (
+                                <div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="neumfJobName">Job name: </label>
+                                        <Field className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2" type="neumfJobName"
+                                               name="neumfJobName"/>
+                                        <ErrorMessage name="neumfJobName" component="div"/>
+                                    </div>
+                                    {/*<div className="row justify-content-sm-start" id={"frm"}>*/}
+                                    {/*    <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1" htmlFor="neumfModel">Model: </label>*/}
+                                    {/*    /!*<Field type="neumfModel" name="neumfModel"/>*!/*/}
+                                    {/*    <Field className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1 btn btn-secondary dropdown-toggle" data-toggle="dropdown"*/}
+                                    {/*           aria-haspopup="false" as="select" name="neumfModel">*/}
+                                    {/*        /!*<option value=".*">everything</option>*!/*/}
+                                    {/*        <option value="neumf">neumf</option>*/}
+                                    {/*        <option value="Triple2vec">Triple2vec</option>*/}
+                                    {/*        <option value="neumf">neumf</option>*/}
+                                    {/*    </Field>*/}
+                                    {/*    <ErrorMessage name="neumfModel" component="div"/>*/}
+                                    {/*</div>*/}
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="neumfDataSet">Data Set: </label>
+                                        {/*<Field type="neumfDataSet" name="neumfDataSet"/>*/}
+                                        <Field
+                                            className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="false" as="select" name="neumfDataSet">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="dunnhumby">dunnhumby</option>
+                                            <option value="tafeng">tafeng</option>
+                                        </Field>
+                                        <ErrorMessage name="neumfDataSet" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="neumfEmbedSize">Embedding size: </label>
+                                        {/*<Field type="neumfEmbedSize" name="neumfEmbedSize"/>*/}
+                                        <Field
+                                            className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="false" as="select" name="neumfEmbedSize">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="32">32</option>
+                                            <option value="64">64</option>
+                                            <option value="128">128</option>
+                                            <option value="256">256</option>
+                                            <option value="512">512</option>
+                                        </Field>
+                                        <ErrorMessage name="neumfEmbedSize" component="div"/>
+                                    </div>
+                                    <div className="row justify-content-sm-start" id={"frm"}>
+                                        <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
+                                               htmlFor="neumfDataSplit">Data split: </label>
+                                        {/*<Field type="neumfDataSplit" name="neumfDataSplit"/>*/}
+                                        <Field
+                                            className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="false" as="select" name="neumfDataSplit">
+                                            {/*<option value=".*">everything</option>*/}
+                                            <option value="leave_one_item">leave_one_item</option>
+                                            <option value="leave_one_basket">leave_one_basket</option>
+                                            <option value="temporal">temporal</option>
+                                        </Field>
+                                        <ErrorMessage name="neumfDataSplit" component="div"/>
                                     </div>
                                 </div>
                             )}

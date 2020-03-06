@@ -118,7 +118,7 @@ module.exports = class Rest {
             console.log(error.line);
         });
     }
-    async createNewVbCarJob(jobName, configName) {
+    async createNewRecommenderJob(jobName, trainPythonName, configName) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
                 "body":{
@@ -191,7 +191,7 @@ module.exports = class Rest {
                                         ],
                                         "args": [
                                             // yes/envs/py37torch13/bin/python
-                                            "/nfs/tr_rec//src/train_vbcar.py",
+                                            "/nfs/tr_rec//src/"+trainPythonName, //train_vbcar.py",
                                             "--config_file",
                                             "/nfs/tr_rec//configs/"+configName//test.json"//configName//"test.json"
                                             // "/nfs/tr_rec//jobScripts/test.job.sh"

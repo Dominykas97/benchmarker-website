@@ -148,10 +148,9 @@ async function prepareAndRunNewJob(req) {
     }, 50000);
 }
 
-async function createVbCarConfigFile(configName, dataSet, dataSplit, embedSize) {
-
+async function createRecommenderConfigFile(model, configName, dataSet, dataSplit, embedSize) {
     let configFile = {
-        "model": "VBCAR",
+        "model": model,//"VBCAR",
         "config_id": "default",//"vbcar_dunnhumby_leave_one_basket_0_.01_.0005_lrelu_rmsprop_32",
         "dataset": dataSet,
         "data_split": dataSplit,
@@ -188,47 +187,63 @@ async function createVbCarConfigFile(configName, dataSet, dataSplit, embedSize) 
         "run_dir": "/runs/",
         "root_dir": "/nfs/tr_rec/"
     };
-
-    // let configFile = {
-    //     "model": "VBCAR",
-    //     "config_id": "default",
-    //     "root_dir": "../",
-    //     "dataset": dataSet,
-    //     "data_split": dataSplit,
-    //     "data_split_comment": "options:temporal leave_one_out",
-    //     "temp_train": 0,
-    //     "temp_train_comment": "options: 0,10,20,30,40,50,100",
-    //     "percent": 1,
-    //     "n_sample": 1000000,
-    //     "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
-    //     "late_dim": 512,
-    //     "emb_dim": embedSize,
-    //     "n_neg": 5,
-    //     "batch_size": 256,
-    //     "alpha": 0.0,
-    //     "alpha_comment": "options: 0.0001,0.001,0.005,0.01,0.05,0.1,0.5",
-    //     "user_fea_dim": 512,
-    //     "item_fea_dim": 512,
-    //     "device": "gpu",
-    //     "feature_type": "random",
-    //     "activator": "lrelu",
-    //     "activator_comment": "options: relu, prelu, lrelu, tanh, sigmoid",
-    //     "optimizer": "rmsprop",
-    //     "optimizer_commen": "options:adam, rmsprop",
-    //     "lr": 0.005,
-    //     "lr_commen": "options:0.0001, 0.0025, 0.005, 0.01",
-    //     "l2_regularization": 0.01,
-    //     "num_epoch": 120,
-    //     "result_file": "result.csv",
-    //     "log_dir": "logs/",
-    //     "result_dir": "results/",
-    //     "checkpoint_dir": "checkpoints/",
-    //     "dataset_dir": "datasets/",
-    //     "sample_dir": "samples/",
-    //     "run_dir": "runs/"
-    // };
     await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
+}
 
+async function createNeumfConfigFile(configName, dataSet, dataSplit, embedSize) {
+    let configFile = {
+        "model" : "neumf",
+        "config_id" : "neumf_dunnhumby_leave_one_basket_0_.005_rmsprop_128",
+        "root_dir" : "/nfs/tr_rec/",
+        "common_config" : {
+            "dataset" : dataSet,//"dunnhumby",
+            "data_split" : dataSplit,//"leave_one_basket",
+            "temp_train" : 0,
+            "emb_dim" : embedSize,//128,
+            "num_negative" : 4,
+            "batch_size" : 1024,
+            "metrics" : [ "ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k" ],
+            "device" : "gpu",
+            "optimizer" : "rmsprop",
+            "lr" : 0.005,
+            "num_epoch" : 50,
+            "result_file" : "results.csv",
+            "log_dir" : "/logs/",
+            "result_dir" : "/results/",
+            "checkpoint_dir" : "/checkpoints/",
+            "dataset_dir" : "/datasets/",
+            "run_dir" : "/runs/"
+        },
+        "gmf_config" : {
+            "name" : "gmf",
+            "latent_dim" : 16,
+            "save_name" : "gmf.model"
+        },
+        "mlp_config" : {
+            "name" : "mlp",
+            "latent_dim" : 16,
+            "layers" : [ 32, 64, 32, 16, 8 ],
+            "save_name" : "mlp.model",
+            "pretrain_gmf" : "gmf.model"
+        },
+        "neumf_config" : {
+            "name" : "neumf",
+            "latent_dim_gmf" : 16,
+            "latent_dim_mlp" : 16,
+            "layers" : [ 32, 64, 32, 8 ],
+            "pretrain_gmf" : "gmf.model",
+            "pretrain_mlp" : "mlp.model",
+            "save_name" : "neumf.model"
+        },
+        "checkpoint_dir" : "/checkpoints/",
+        "sample_dir" : null,
+        "run_dir" : "/runs/",
+        "dataset_dir" : "/datasets/",
+        "result_dir" : "/results/",
+        "result_file" : "results.csv",
+        "log_dir" : "/logs/"
+    };
+    await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
 }
 
 app.post('/new_job', async (req, res) => {
@@ -251,9 +266,23 @@ app.post('/new_job', async (req, res) => {
     if (req.body.jobType === "job-vbcar-") {
         let jobName = req.body.jobType + req.body.vbCarJobName;
         let configName = 'vbcar-' + req.body.vbCarJobName + '.json';
-        await createVbCarConfigFile(configName, req.body.vbCarDataSet, req.body.vbCarDataSplit, req.body.vbCarEmbedSize);
+        await createRecommenderConfigFile("VBCAR", configName, req.body.vbCarDataSet, req.body.vbCarDataSplit, req.body.vbCarEmbedSize);
         console.log(req.body);
-        await rest.createNewVbCarJob(jobName, configName)
+        await rest.createNewRecommenderJob(jobName, "train_vbcar.py", configName)
+    }
+    if (req.body.jobType === "job-triple2vec-") {
+        let jobName = req.body.jobType + req.body.triple2vecJobName;
+        let configName = 'triple2vec-' + req.body.triple2vecJobName + '.json';
+        await createRecommenderConfigFile("Triple2vec", configName, req.body.triple2vecDataSet, req.body.triple2vecDataSplit, req.body.triple2vecEmbedSize);
+        console.log(req.body);
+        await rest.createNewRecommenderJob(jobName, "train_triple2vec.py", configName)
+    }
+    if (req.body.jobType === "job-neumf-") {
+        let jobName = req.body.jobType + req.body.neumfJobName;
+        let configName = 'neumf-' + req.body.neumfJobName + '.json';
+        await createNeumfConfigFile(configName, req.body.neumfDataSet, req.body.neumfDataSplit, req.body.neumfEmbedSize);
+        console.log(req.body);
+        await rest.createNewRecommenderJob(jobName, "train_nmf.py", configName)
     }
 });
 
