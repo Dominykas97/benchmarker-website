@@ -23,66 +23,55 @@ let lastRunningJobName = null;
 
 let lastCompletedJobName = null;
 
-async function readPodsFromFile() {
-    let podsJSON = await fsPromises.readFile('/nfs/pods.json');
-    // let knownPodsNames;
-    // if (podsJSON == null) {
-    //     knownPodsNames = null;
-    // } else {
-    //     knownPodsNames = JSON.parse(podsJSON.toString());
-    // }
-    return JSON.parse(podsJSON.toString());
-}
+// async function checkRunningJob() {
+//
+//     let jobs = await rest.getJobs();
+//     let runningJobs = await getRunningJobs(jobs, []);
+//     console.log("Checking running jobs:");
+//     console.log(runningJobs);
+//     console.log("Last completed job:");
+//     console.log(lastCompletedJobName);
+//
+//     if (lastCompletedJobName != null) {
+//         // rest.removeJob(lastRunningJobName);
+//         let knownPodsNames = await readPodsFromFile();
+//         let jobItems = await rest.getJob(lastCompletedJobName);
+//         let job = jobItems.body;
+//         console.log("Last completed job body:");
+//         console.log(job);
+//         // console.log(job.status);
+//         // console.log(job.status.succeeded);
+//         if (!(lastCompletedJobName in knownPodsNames)) {//&& jobs.hasOwnProperty(lastCompletedJobName)
+//             if (job.status.succeeded === 1) {
+//                 let lastCompletedJobPodName = await rest.getPodName(getDeploymentConfigTaskManagerName(lastCompletedJobName));
+//                 console.log("lastCompletedJobPodName:");
+//                 console.log(lastCompletedJobPodName);
+//                 knownPodsNames[lastCompletedJobName] = lastCompletedJobPodName;
+//                 await fsPromises.writeFile('/nfs/pods.json', JSON.stringify(knownPodsNames));
+//                 await removeJobDependencies(lastCompletedJobName);
+//                 lastCompletedJobName = null;
+//             }
+//         }
+//     }
+//
+//     // if (await rest.hasJobSucceeded(lastRunningJobName)) {
+//     //     lastCompletedJobName = lastRunningJobName;
+//     //     lastRunningJobName = null;
+//     // }
+//
+//     if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
+//
+//         let jobParameters = jobsQueue.shift();
+//         while (deletedQueueNames.has(jobParameters.jobName)) {
+//             jobParameters = jobsQueue.shift();
+//         }
+//         console.log("Checking parameters:");
+//         console.log(jobParameters);
+//         await prepareAndRunNewJob({"body": jobParameters});
+//     }
+// }
 
-async function checkRunningJob() {
-
-    let jobs = await rest.getJobs();
-    let runningJobs = getRunningJobs(jobs);
-    console.log("Checking running jobs:");
-    console.log(runningJobs);
-    console.log("Last completed job:");
-    console.log(lastCompletedJobName);
-
-    if (lastCompletedJobName != null) {
-        // rest.removeJob(lastRunningJobName);
-        let knownPodsNames = await readPodsFromFile();
-        let jobItems = await rest.getJob(lastCompletedJobName);
-        let job = jobItems.body;
-        console.log("Last completed job body:");
-        console.log(job);
-        // console.log(job.status);
-        // console.log(job.status.succeeded);
-        if (!(lastCompletedJobName in knownPodsNames)) {//&& jobs.hasOwnProperty(lastCompletedJobName)
-            if (job.status.succeeded === 1) {
-                let lastCompletedJobPodName = await rest.getPodName(getDeploymentConfigTaskManagerName(lastCompletedJobName));
-                console.log("lastCompletedJobPodName:");
-                console.log(lastCompletedJobPodName);
-                knownPodsNames[lastCompletedJobName] = lastCompletedJobPodName;
-                await fsPromises.writeFile('/nfs/pods.json', JSON.stringify(knownPodsNames));
-                await removeJobDependencies(lastCompletedJobName);
-                lastCompletedJobName = null;
-            }
-        }
-    }
-
-    // if (await rest.hasJobSucceeded(lastRunningJobName)) {
-    //     lastCompletedJobName = lastRunningJobName;
-    //     lastRunningJobName = null;
-    // }
-
-    if ((typeof runningJobs === 'undefined' || runningJobs.length === 0) && jobsQueue.length > 0) {
-
-        let jobParameters = jobsQueue.shift();
-        while (deletedQueueNames.has(jobParameters.jobName)) {
-            jobParameters = jobsQueue.shift();
-        }
-        console.log("Checking parameters:");
-        console.log(jobParameters);
-        await prepareAndRunNewJob({"body": jobParameters});
-    }
-}
-
-setInterval(checkRunningJob, 10000);
+// setInterval(checkRunningJob, 10000);
 
 // console.log that your server is up and running
 app.listen(port, () => console.log(`${ip}:${port}`));
@@ -119,19 +108,19 @@ async function prepareAndRunNewJob(req) {
     await rest.patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
     await rest.patchFlinkConfigMap(serviceJobManagerName);
     await rest.patchComponentsConfigMap(req.body);
-    await rest.createTaskManagerService(serviceTaskManagerName);
     await rest.createJobManagerService(serviceJobManagerName);
+    await rest.createTaskManagerService(serviceTaskManagerName);
     await rest.createStartImageStream(imageStreamStartName);
     await rest.createStartBuildConfig(serviceJobManagerName, buildConfigStartName, imageStreamStartName);
-    setTimeout(function () {
-        rest.buildStartBuildConfig(buildConfigStartName);
+    setTimeout(async function () {
+        await rest.buildStartBuildConfig(buildConfigStartName);
     }, 5000);
-    setTimeout(function () {
-        rest.deployJobManager(serviceJobManagerName, deploymentConfigJobManagerName);
+    setTimeout(async function () {
+        await rest.deployJobManager(serviceJobManagerName, deploymentConfigJobManagerName);
     }, 20000);
-    setTimeout(function () {
-        rest.deployTaskManager(serviceJobManagerName, deploymentConfigTaskManagerName);
-    }, 30000);
+    setTimeout(async function () {
+        await rest.deployTaskManager(serviceJobManagerName, deploymentConfigTaskManagerName);
+    }, 40000);
     setTimeout(function () {
         request.post(
             'http://prom-2262804sproject.ida.dcs.gla.ac.uk/-/reload',
@@ -142,126 +131,28 @@ async function prepareAndRunNewJob(req) {
                 }
             }
         );
-    }, 40000);
-    setTimeout(function () {
-        rest.createNewJob(jobName, serviceJobManagerName, imageStreamStartName);
     }, 50000);
-}
-
-async function createRecommenderConfigFile(model, configName, dataSet, dataSplit, embedSize) {
-    let configFile = {
-        "model": model,//"VBCAR",
-        "config_id": "default",//"vbcar_dunnhumby_leave_one_basket_0_.01_.0005_lrelu_rmsprop_32",
-        "dataset": dataSet,
-        "data_split": dataSplit,
-        "data_split_comment": "options:temporal leave_one_out",
-        "temp_train": 0,
-        "temp_train_comment": "options: 0,10,20,30,40,50,100",
-        "percent": 1,
-        "n_sample": 1000000,
-        "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
-        "late_dim": 512,
-        "emb_dim": embedSize,
-        "n_neg": 5,
-        "batch_size": 256,
-        "alpha": 0.01,
-        "alpha_comment": "options: 0.0001,0.001,0.005,0.01,0.05,0.1,0.5",
-        "user_fea_dim": 512,
-        "item_fea_dim": 512,
-        "device": "gpu",
-        "feature_type": "random",
-        "activator": "lrelu",
-        "activator_comment": "options:relu, tanh",
-        "optimizer": "rmsprop",
-        "optimizer_comment": "options:adam, rmsprop",
-        "lr": 5.0E-4,
-        "lr_comment": "options:0.0001, 0.0025, 0.005, 0.01",
-        "l2_regularization": 0.01,
-        "num_epoch": 120,
-        "result_file": "results.csv",
-        "log_dir": "/logs/",
-        "result_dir": "/results/",
-        "checkpoint_dir": "/checkpoints/",
-        "dataset_dir": "/datasets/",
-        "sample_dir": "/samples/",
-        "run_dir": "/runs/",
-        "root_dir": "/nfs/tr_rec/"
-    };
-    await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
-}
-
-async function createNeumfConfigFile(configName, dataSet, dataSplit, embedSize) {
-    let configFile = {
-        "model" : "neumf",
-        "config_id" : "neumf_dunnhumby_leave_one_basket_0_.005_rmsprop_128",
-        "root_dir" : "/nfs/tr_rec/",
-        "common_config" : {
-            "dataset" : dataSet,//"dunnhumby",
-            "data_split" : dataSplit,//"leave_one_basket",
-            "temp_train" : 0,
-            "emb_dim" : embedSize,//128,
-            "num_negative" : 4,
-            "batch_size" : 1024,
-            "metrics" : [ "ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k" ],
-            "device" : "gpu",
-            "optimizer" : "rmsprop",
-            "lr" : 0.005,
-            "num_epoch" : 50,
-            "result_file" : "results.csv",
-            "log_dir" : "/logs/",
-            "result_dir" : "/results/",
-            "checkpoint_dir" : "/checkpoints/",
-            "dataset_dir" : "/datasets/",
-            "run_dir" : "/runs/"
-        },
-        "gmf_config" : {
-            "name" : "gmf",
-            "latent_dim" : 16,
-            "save_name" : "gmf.model"
-        },
-        "mlp_config" : {
-            "name" : "mlp",
-            "latent_dim" : 16,
-            "layers" : [ 32, 64, 32, 16, 8 ],
-            "save_name" : "mlp.model",
-            "pretrain_gmf" : "gmf.model"
-        },
-        "neumf_config" : {
-            "name" : "neumf",
-            "latent_dim_gmf" : 16,
-            "latent_dim_mlp" : 16,
-            "layers" : [ 32, 64, 32, 8 ],
-            "pretrain_gmf" : "gmf.model",
-            "pretrain_mlp" : "mlp.model",
-            "save_name" : "neumf.model"
-        },
-        "checkpoint_dir" : "/checkpoints/",
-        "sample_dir" : null,
-        "run_dir" : "/runs/",
-        "dataset_dir" : "/datasets/",
-        "result_dir" : "/results/",
-        "result_file" : "results.csv",
-        "log_dir" : "/logs/"
-    };
-    await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
+    setTimeout(async function () {
+        await rest.createNewJob(jobName, serviceJobManagerName, imageStreamStartName);
+    }, 70000);
 }
 
 app.post('/new_job', async (req, res) => {
     let jobs = await rest.getJobs();
-    let runningJobs = getRunningJobs(jobs);
+    let runningJobs = await getRunningJobs(jobs, []);
     console.log("running jobs:");
     console.log(runningJobs);
     if (req.body.jobType === "job-appsimulator-flinksim-") {
         req.body.jobName = req.body.jobType + req.body.jobName;
-        if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
-            await prepareAndRunNewJob(req);
+        // if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
+        await prepareAndRunNewJob(req);
 
-            res.redirect('/new');
-        } else {
-            jobsQueue.push(req.body);
-            console.log("Jobs queue:");
-            console.log(jobsQueue);
-        }
+        res.redirect('/new');
+        // } else {
+        //     jobsQueue.push(req.body);
+        //     console.log("Jobs queue:");
+        //     console.log(jobsQueue);
+        // }
     }
     if (req.body.jobType === "job-vbcar-") {
         let jobName = req.body.jobType + req.body.vbCarJobName;
@@ -300,7 +191,12 @@ app.post('/remove_job', async (req, res) => {
     let jobName = req.body.name;
     console.log(jobName);
     lastRunningJobName = null;
+    let podName = await rest.getPodName(jobName, "job-name");
+    console.log(podName);
     await rest.removeJob(jobName);
+    if(typeof podName !== 'undefined'){
+        await rest.removePod(podName);
+    }
     let jobParameters = jobsServicesDeploymentConfigs[jobName];
     if (typeof jobParameters !== 'undefined') {
         removeJobDependencies(jobName);
@@ -321,10 +217,17 @@ app.post('/remove_from_queue', (req, res) => {
 app.get('/running_jobs', async (req, res) => {
     let jobs = await rest.getJobs();
     console.log(jobs);
-    let runningJobs = getRunningJobs(jobs);
     // console.log()
-    let queueNames = getQueueNames();
+    let queueNames = await getQueueNames(jobs);
+
+    // getQueueNames(jobs)
+    //     .then(async (queueNames) => {
+    //         let runningJobs = await getRunningJobs(jobs, queueNames);
     let podsNames = {};
+    // console.log("AAAAAAAAAA");
+    // console.log(queueNames);
+    //     });
+    let runningJobs = await getRunningJobs(jobs, queueNames);
     for (let job in runningJobs) {
         if (runningJobs.hasOwnProperty(job)) {
             console.log(job);
@@ -392,27 +295,48 @@ app.get('/completed_jobs', async (req, res) => {
 
 });
 
-function getQueueNames() {
+async function getQueueNames(jobs) {
     let jobsQueueNames = [];
-    for (let name in jobsQueue) {
-        if (jobsQueue.hasOwnProperty(name) && !deletedQueueNames.has(jobsQueue[name].jobName)) {
-            console.log("Adding to queue:");
-            console.log(jobsQueue[name].jobName);
-            console.log(deletedQueueNames);
-            jobsQueueNames.push(jobsQueue[name].jobName);
+    for (let job in jobs.body.items) {
+        if (jobs.body.items.hasOwnProperty(job)) {
+            let jobName = jobs.body.items[job].metadata.name;
+            // jobNames.push(jobName);
+            let pending = await rest.checkIfPodIsPending(jobName);
+            if(pending !== ''){
+                jobsQueueNames.push(jobName);
+            }
+            // if (jobs.body.items[job].status.phase === "Pending") {
+            //     jobsQueueNames.push(jobName);
+            // }
+            // if (jobs.body.items[job].status.succeeded !== 1) {
+            //     runningJobs.push(jobName);
+            // }
         }
     }
+    // for (let name in jobsQueue) {
+    //     if (jobsQueue.hasOwnProperty(name) && !deletedQueueNames.has(jobsQueue[name].jobName)) {
+    //         console.log("Adding to queue:");
+    //         console.log(jobsQueue[name].jobName);
+    //         console.log(deletedQueueNames);
+    //         jobsQueueNames.push(jobsQueue[name].jobName);
+    //     }
+    // }
     return jobsQueueNames;
 }
 
-function getRunningJobs(jobs) {
+async function getRunningJobs(jobs, queueNames) {
     let jobNames = [];
     let runningJobs = [];
     for (let job in jobs.body.items) {
         if (jobs.body.items.hasOwnProperty(job)) {
             let jobName = jobs.body.items[job].metadata.name;
             jobNames.push(jobName);
-            if (jobs.body.items[job].status.succeeded !== 1) {
+            // if (jobs.body.items[job].status.phase === "Pending") {
+            //     jobsQueue.push(jobName);
+            // }
+            console.log("getRunningJObs queuenames");
+            console.log(queueNames);
+            if (!queueNames.includes(jobName) && jobs.body.items[job].status.succeeded !== 1) {
                 runningJobs.push(jobName);
             }
         }
@@ -454,6 +378,114 @@ function getServiceTaskManagerName(jobName) {
 
 function getServiceJobManagerName(jobName) {
     return jobName.replace("job-", "srv-jobmanager-");
+}
+async function readPodsFromFile() {
+    let podsJSON = await fsPromises.readFile('/nfs/pods.json');
+    // let knownPodsNames;
+    // if (podsJSON == null) {
+    //     knownPodsNames = null;
+    // } else {
+    //     knownPodsNames = JSON.parse(podsJSON.toString());
+    // }
+    return JSON.parse(podsJSON.toString());
+}
+
+async function createRecommenderConfigFile(model, configName, dataSet, dataSplit, embedSize) {
+    let configFile = {
+        "model": model,//"VBCAR",
+        "config_id": "default",//"vbcar_dunnhumby_leave_one_basket_0_.01_.0005_lrelu_rmsprop_32",
+        "dataset": dataSet,
+        "data_split": dataSplit,
+        "data_split_comment": "options:temporal leave_one_out",
+        "temp_train": 0,
+        "temp_train_comment": "options: 0,10,20,30,40,50,100",
+        "percent": 1,
+        "n_sample": 1000000,
+        "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
+        "late_dim": 512,
+        "emb_dim": parseInt(embedSize),
+        "n_neg": 5,
+        "batch_size": 256,
+        "alpha": 0.01,
+        "alpha_comment": "options: 0.0001,0.001,0.005,0.01,0.05,0.1,0.5",
+        "user_fea_dim": 512,
+        "item_fea_dim": 512,
+        "device": "gpu",
+        "feature_type": "random",
+        "activator": "lrelu",
+        "activator_comment": "options:relu, tanh",
+        "optimizer": "rmsprop",
+        "optimizer_comment": "options:adam, rmsprop",
+        "lr": 5.0E-4,
+        "lr_comment": "options:0.0001, 0.0025, 0.005, 0.01",
+        "l2_regularization": 0.01,
+        "num_epoch": 120,
+        "result_file": "results.csv",
+        "log_dir": "/logs/",
+        "result_dir": "/results/",
+        "checkpoint_dir": "/checkpoints/",
+        "dataset_dir": "/datasets/",
+        "sample_dir": "/samples/",
+        "run_dir": "/runs/",
+        "root_dir": "/nfs/tr_rec/"
+    };
+    await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
+}
+
+async function createNeumfConfigFile(configName, dataSet, dataSplit, embedSize) {
+    let configFile = {
+        "model" : "neumf",
+        "config_id" : "default",//"neumf_dunnhumby_leave_one_basket_0_.005_rmsprop_128",
+        "root_dir" : "/nfs/tr_rec/",
+        "common_config" : {
+            "dataset" : dataSet,//"dunnhumby",
+            "data_split" : dataSplit,//"leave_one_basket",
+            "temp_train" : 0,
+            "emb_dim" : parseInt(embedSize),//128,
+            "num_negative" : 4,
+            "batch_size" : 1024,
+            "metrics" : [ "ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k" ],
+            "device" : "gpu",
+            "optimizer" : "rmsprop",
+            "lr" : 0.005,
+            "num_epoch" : 50,
+            "result_file" : "results.csv",
+            "log_dir" : "/logs/",
+            "result_dir" : "/results/",
+            "checkpoint_dir" : "/checkpoints/",
+            "dataset_dir" : "/datasets/",
+            "run_dir" : "/runs/"
+        },
+        "gmf_config" : {
+            "name" : "gmf",
+            "latent_dim" : 16,
+            "save_name" : "gmf.model"
+        },
+        "mlp_config" : {
+            "name" : "mlp",
+            "latent_dim" : 16,
+            "layers" : [ 32, 64, 32, 16, 8 ],
+            "save_name" : "mlp.model",
+            "pretrain_gmf" : "gmf.model"
+        },
+        "neumf_config" : {
+            "name" : "neumf",
+            "latent_dim_gmf" : 16,
+            "latent_dim_mlp" : 16,
+            "layers" : [ 32, 64, 32, 8 ],
+            "pretrain_gmf" : "gmf.model",
+            "pretrain_mlp" : "mlp.model",
+            "save_name" : "neumf.model"
+        },
+        "checkpoint_dir" : "/checkpoints/",
+        "sample_dir" : null,
+        "run_dir" : "/runs/",
+        "dataset_dir" : "/datasets/",
+        "result_dir" : "/results/",
+        "result_file" : "results.csv",
+        "log_dir" : "/logs/"
+    };
+    await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
 }
 
 function normalizePort(val) {

@@ -54,15 +54,15 @@ class App extends Component {
                         {/*    </span>*/}
                         {/*</button>*/}
                         {/*<div className="collapse navbar-collapse" id="navbarNavAltMarkup">*/}
-                            <div className="navbar-nav">
-                                {/*<a className="nav-item nav-link active">Home <span*/}
-                                {/*    className="sr-only">(current)</span></a>*/}
-                                <NavLink exact to="/" className="nav-item nav-link">Running tests</NavLink>
-                                <NavLink to="/new" className="nav-item nav-link">Run new tests</NavLink>
-                                <NavLink to="/completed" className="nav-item nav-link">Completed</NavLink>
-                                <NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>
-                                {/*<a className="nav-item nav-link disabled" href="#">Disabled</a>*/}
-                            </div>
+                        <div className="navbar-nav">
+                            {/*<a className="nav-item nav-link active">Home <span*/}
+                            {/*    className="sr-only">(current)</span></a>*/}
+                            <NavLink exact to="/" className="nav-item nav-link">Running tests</NavLink>
+                            <NavLink to="/new" className="nav-item nav-link">Run new tests</NavLink>
+                            <NavLink to="/completed" className="nav-item nav-link">Completed</NavLink>
+                            {/*<NavLink to="/" className="nav-item nav-link">{this.state.data}</NavLink>*/}
+                            {/*<a className="nav-item nav-link disabled" href="#">Disabled</a>*/}
+                        </div>
                         {/*</div>*/}
                     </nav>
                     <div className="content">

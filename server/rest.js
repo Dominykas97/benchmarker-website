@@ -55,6 +55,13 @@ module.exports = class Rest {
             console.log(error.line);
         });
     }
+    async removePod(name) {
+        //DELETE /api/v1/namespaces/$NAMESPACE/pods/$NAME HTTP/1.1
+        return this.client.api.v1.ns(this.projectName).pods(name).delete().catch(function (error) {
+            console.log(error);
+            console.log(error.line);
+        });
+    }
 
     async createNewJob(jobName, serviceJobManagerName, imageStreamStartName) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
@@ -232,6 +239,25 @@ module.exports = class Rest {
         for (let pod in pods) {
             if (pods.hasOwnProperty(pod)) {
                 if (pods[pod].status.phase === 'Running') {
+                    podName = pods[pod].metadata.name;
+                }
+            }
+        }
+        return podName;
+    }
+
+    async checkIfPodIsPending(jobName, label="job-name") {
+        // GET /api/v1/namespaces/$NAMESPACE/pods HTTP/1.1
+        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: label +"="+ jobName}}).catch(function (error) {
+            console.log(error);
+            console.log(error.line);
+        });
+        let pods = podsInfo.body.items;
+
+        let podName = '';
+        for (let pod in pods) {
+            if (pods.hasOwnProperty(pod)) {
+                if (pods[pod].status.phase === 'Pending') {
                     podName = pods[pod].metadata.name;
                 }
             }

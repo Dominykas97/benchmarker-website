@@ -140,7 +140,7 @@ class Tests extends Component {
                         {runningTestsButtonShown ? (
                             runningJobsNames.map(name =>
                                 <div className="row justify-content-sm-start runningJobs" key={name}>
-                                    <div className="col-7" key="runningTests">
+                                    <div className="col-8" key="runningTests">
                                         <div className="btn-group-vertical" key={name}>
                                             <button type="button" className="btn btn-secondary btn-block" key={name}
                                                     onClick={() => this.toggleSelected(name)}>
@@ -148,18 +148,21 @@ class Tests extends Component {
                                             </button>
                                         </div>
                                     </div>
-                                    <div key="runningTestsRemove">
-                                        <button type="button" className="btn btn-outline-danger"
-                                                onClick={() => this.callRemoveRunningTest(name)}>
-                                            Remove
-                                        </button>
+                                    <div className="row">
+                                        <div key="runningTestsRemove">
+                                            <button type="button" className="btn btn-outline-danger"
+                                                    onClick={() => this.callRemoveRunningTest(name)}>
+                                                Remove
+                                            </button>
+                                        </div>
+                                        <div key="runningTestsInfo">
+                                            <button type="button" className="btn btn-outline-info"
+                                                    onClick={() => this.onClick(name)}>
+                                                Info
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div key="runningTestsInfo">
-                                        <button type="button" className="btn btn-outline-info"
-                                                onClick={() => this.onClick(name)}>
-                                            Info
-                                        </button>
-                                    </div>
+
                                 </div>
                             )
                         ) : <div>There are no running jobs.</div>}
@@ -175,6 +178,12 @@ class Tests extends Component {
                                             onClick={() => this.callRemoveFromQueue(name)}>
                                         Remove
                                     </button>
+                                    <div key="QueueInfo">
+                                        <button type="button" className="btn btn-outline-info"
+                                                onClick={() => this.onClick(name)}>
+                                            Info
+                                        </button>
+                                    </div>
                                 </div>
                             )
                         ) : <div>There are no jobs in the queue.</div>}
@@ -201,7 +210,7 @@ class Tests extends Component {
                             {props => (
                                 <Form className="form-group">
                                     <div className="row justify-content-start" id={"frm"}>
-                                        <div className="col-2">
+                                        <div className="col-2 col-sm-3 col-md-2 col-lg-2 col-xl-2">
                                             <label htmlFor="model">Model: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
@@ -214,20 +223,20 @@ class Tests extends Component {
                                             <ErrorMessage name="model" component="div"/>
                                         </div>
 
-                                        <div className="col-2">
+                                        <div className="col-2 col-sm-3 col-md-2 col-lg-2 col-xl-2">
                                             <label htmlFor="dataSet">Dataset: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
                                                    aria-haspopup="false" as="select" name="dataSet">
                                                 <option value=".*">everything</option>
-                                                <option value="dunnhumby">dunn-humby</option>
+                                                <option value="dunnhumby">dunnhumby</option>
                                                 <option value="tafeng">tafeng</option>
                                             </Field>
                                             <ErrorMessage name="dataSet" component="div"/>
                                         </div>
 
                                         <div className="col-2">
-                                            <label htmlFor="embedSize">Embedding size: </label>
+                                            <label htmlFor="embedSize">Embed size: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
                                                    aria-haspopup="false" as="select" name="embedSize">
@@ -253,7 +262,7 @@ class Tests extends Component {
                                             </Field>
                                             <ErrorMessage name="dataSplit" component="div"/>
                                         </div>
-                                        <button type="submit" className="col-sm-1 btn-secondary"
+                                        <button type="submit" className="col-2 btn-secondary"
                                                 style={{marginTop: 20}}>
                                             Update
                                         </button>
