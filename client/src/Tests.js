@@ -139,7 +139,8 @@ class Tests extends Component {
                         <h2>Running tests</h2>
                         {runningTestsButtonShown ? (
                             runningJobsNames.map(name =>
-                                <div className="row justify-content-sm-start runningJobs" key={name} style={{marginBottom:5}}>
+                                <div className="row justify-content-sm-start runningJobs" key={name}
+                                     style={{marginBottom: 5}}>
                                     <div className="col-8" key="runningTests">
                                         <div className="btn-group-vertical" key={name}>
                                             <button type="button" className="btn btn-secondary btn-block" key={name}
@@ -150,7 +151,8 @@ class Tests extends Component {
                                     </div>
                                     <div className="row">
                                         <div key="runningTestsRemove">
-                                            <button type="button" className="btn btn-outline-danger" style={{marginRight:2}}
+                                            <button type="button" className="btn btn-outline-danger"
+                                                    style={{marginRight: 2}}
                                                     onClick={() => this.callRemoveRunningTest(name)}>
                                                 Remove
                                             </button>
@@ -174,7 +176,7 @@ class Tests extends Component {
                                     <div className="col-7" key="testsInQueue">
                                         {name}
                                     </div>
-                                    <button type="button" className="btn btn-outline-danger" style={{marginRight:2}}
+                                    <button type="button" className="btn btn-outline-danger" style={{marginRight: 2}}
                                             onClick={() => this.callRemoveFromQueue(name)}>
                                         Remove
                                     </button>
@@ -276,18 +278,18 @@ class Tests extends Component {
                                 <iframe src={source} width="500" height="725" frameBorder="0"/>
                             </div>
                             {this.state.selectedItemIndex !== undefined ? (
-                                <div className="row" style={{marginLeft:20}}>
-                                <div className="col-12">
-                                    <div> Pod name: {podName[this.state.selectedItemIndex]}</div>
-                                    <div>
-                                        <iframe title={"cpu"} src={sourceCpu} width="450" height="350"
-                                                frameBorder="0" scrolling="no"/>
+                                <div className="row" style={{marginLeft: 20}}>
+                                    <div className="col-10">
+                                        <div> Pod name: {podName[this.state.selectedItemIndex]}</div>
+                                        <div>
+                                            <iframe title={"cpu"} src={sourceCpu} width="450" height="350"
+                                                    frameBorder="0" scrolling="no"/>
+                                        </div>
+                                        <div>
+                                            <iframe title={"memory"} src={sourceMemory} width="450" height="350"
+                                                    frameBorder="0" scrolling="no"/>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <iframe title={"memory"} src={sourceMemory} width="450" height="350"
-                                                frameBorder="0" scrolling="no"/>
-                                    </div>
-                                </div>
                                 </div>) : null}
 
                         </div>

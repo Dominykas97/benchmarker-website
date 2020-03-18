@@ -155,28 +155,29 @@ app.post('/new_job', async (req, res) => {
         // }
     }
     if (req.body.jobType === "job-vbcar-") {
-        let jobName = req.body.jobType + req.body.vbCarJobName;
+        // let dataSplit = req.body.vbCarDataSplit.split("_").join("-");
+        let jobName = req.body.jobType + req.body.vbCarDataSet.charAt(0) +req.body.vbCarDataSplit.slice(-1)+req.body.vbCarEmbedSize +"-"+ req.body.vbCarJobName;
         let configName = 'vbcar-' + req.body.vbCarJobName + '.json';
         await createRecommenderConfigFile("VBCAR", configName, req.body.vbCarDataSet, req.body.vbCarDataSplit, req.body.vbCarEmbedSize);
         console.log(req.body);
         await rest.createNewRecommenderJob(jobName, "train_vbcar.py", configName,
-            req.body.vbCarLimitCpu,req.body.vbCarLimitMemory,req.body.vbCarLimitGpu,req.body.vbCarRequestCpu,req.body.vbCarRequestGpu,req.body.vbCarRequestGpu)
+            req.body.vbCarLimitCpu, req.body.vbCarLimitMemory, req.body.vbCarLimitGpu, req.body.vbCarRequestCpu, req.body.vbCarRequestGpu, req.body.vbCarRequestGpu)
     }
     if (req.body.jobType === "job-triple2vec-") {
-        let jobName = req.body.jobType + req.body.triple2vecJobName;
+        let jobName = req.body.jobType + req.body.triple2vecDataSet.charAt(0) +req.body.triple2vecDataSplit.slice(-1)+req.body.triple2vecEmbedSize +"-"+ req.body.triple2vecJobName;
         let configName = 'triple2vec-' + req.body.triple2vecJobName + '.json';
         await createRecommenderConfigFile("Triple2vec", configName, req.body.triple2vecDataSet, req.body.triple2vecDataSplit, req.body.triple2vecEmbedSize);
         console.log(req.body);
         await rest.createNewRecommenderJob(jobName, "train_triple2vec.py", configName,
-            req.body.triple2vecLimitCpu,req.body.triple2vecLimitMemory,req.body.triple2vecLimitGpu,req.body.triple2vecRequestCpu,req.body.triple2vecRequestGpu,req.body.triple2vecRequestGpu)
+            req.body.triple2vecLimitCpu, req.body.triple2vecLimitMemory, req.body.triple2vecLimitGpu, req.body.triple2vecRequestCpu, req.body.triple2vecRequestGpu, req.body.triple2vecRequestGpu)
     }
     if (req.body.jobType === "job-neumf-") {
-        let jobName = req.body.jobType + req.body.neumfJobName;
+        let jobName = req.body.jobType + req.body.neumfDataSet.charAt(0) +req.body.neumfDataSplit.slice(-1)+req.body.neumfEmbedSize +"-"+ req.body.neumfJobName;
         let configName = 'neumf-' + req.body.neumfJobName + '.json';
         await createNeumfConfigFile(configName, req.body.neumfDataSet, req.body.neumfDataSplit, req.body.neumfEmbedSize);
         console.log(req.body);
         await rest.createNewRecommenderJob(jobName, "train_nmf.py", configName,
-            req.body.neumfLimitCpu,req.body.neumfLimitMemory,req.body.neumfLimitGpu,req.body.neumfRequestCpu,req.body.neumfRequestGpu,req.body.neumfRequestGpu)
+            req.body.neumfLimitCpu, req.body.neumfLimitMemory, req.body.neumfLimitGpu, req.body.neumfRequestCpu, req.body.neumfRequestGpu, req.body.neumfRequestGpu)
     }
 });
 
@@ -197,7 +198,7 @@ app.post('/remove_job', async (req, res) => {
     let podName = await rest.getPodName(jobName, "job-name");
     console.log(podName);
     await rest.removeJob(jobName);
-    if(typeof podName !== 'undefined'){
+    if (typeof podName !== 'undefined') {
         await rest.removePod(podName);
     }
     let jobParameters = jobsServicesDeploymentConfigs[jobName];
@@ -305,7 +306,7 @@ async function getQueueNames(jobs) {
             let jobName = jobs.body.items[job].metadata.name;
             // jobNames.push(jobName);
             let pending = await rest.checkIfPodIsPending(jobName);
-            if(pending !== ''){
+            if (pending !== '') {
                 jobsQueueNames.push(jobName);
             }
             // if (jobs.body.items[job].status.phase === "Pending") {
@@ -382,6 +383,7 @@ function getServiceTaskManagerName(jobName) {
 function getServiceJobManagerName(jobName) {
     return jobName.replace("job-", "srv-jobmanager-");
 }
+
 async function readPodsFromFile() {
     let podsJSON = await fsPromises.readFile('/nfs/pods.json');
     // let knownPodsNames;
@@ -437,56 +439,56 @@ async function createRecommenderConfigFile(model, configName, dataSet, dataSplit
 
 async function createNeumfConfigFile(configName, dataSet, dataSplit, embedSize) {
     let configFile = {
-        "model" : "neumf",
-        "config_id" : "default",//"neumf_dunnhumby_leave_one_basket_0_.005_rmsprop_128",
-        "root_dir" : "/nfs/tr_rec/",
-        "common_config" : {
-            "dataset" : dataSet,//"dunnhumby",
-            "data_split" : dataSplit,//"leave_one_basket",
-            "temp_train" : 0,
-            "emb_dim" : parseInt(embedSize),//128,
-            "num_negative" : 4,
-            "batch_size" : 1024,
-            "metrics" : [ "ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k" ],
-            "device" : "gpu",
-            "optimizer" : "rmsprop",
-            "lr" : 0.005,
-            "num_epoch" : 50,
-            "result_file" : "results.csv",
-            "log_dir" : "/logs/",
-            "result_dir" : "/results/",
-            "checkpoint_dir" : "/checkpoints/",
-            "dataset_dir" : "/datasets/",
-            "run_dir" : "/runs/"
+        "model": "neumf",
+        "config_id": "default",//"neumf_dunnhumby_leave_one_basket_0_.005_rmsprop_128",
+        "root_dir": "/nfs/tr_rec/",
+        "common_config": {
+            "dataset": dataSet,//"dunnhumby",
+            "data_split": dataSplit,//"leave_one_basket",
+            "temp_train": 0,
+            "emb_dim": parseInt(embedSize),//128,
+            "num_negative": 4,
+            "batch_size": 1024,
+            "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
+            "device": "gpu",
+            "optimizer": "rmsprop",
+            "lr": 0.005,
+            "num_epoch": 50,
+            "result_file": "results.csv",
+            "log_dir": "/logs/",
+            "result_dir": "/results/",
+            "checkpoint_dir": "/checkpoints/",
+            "dataset_dir": "/datasets/",
+            "run_dir": "/runs/"
         },
-        "gmf_config" : {
-            "name" : "gmf",
-            "latent_dim" : 16,
-            "save_name" : "gmf.model"
+        "gmf_config": {
+            "name": "gmf",
+            "latent_dim": 16,
+            "save_name": "gmf.model"
         },
-        "mlp_config" : {
-            "name" : "mlp",
-            "latent_dim" : 16,
-            "layers" : [ 32, 64, 32, 16, 8 ],
-            "save_name" : "mlp.model",
-            "pretrain_gmf" : "gmf.model"
+        "mlp_config": {
+            "name": "mlp",
+            "latent_dim": 16,
+            "layers": [32, 64, 32, 16, 8],
+            "save_name": "mlp.model",
+            "pretrain_gmf": "gmf.model"
         },
-        "neumf_config" : {
-            "name" : "neumf",
-            "latent_dim_gmf" : 16,
-            "latent_dim_mlp" : 16,
-            "layers" : [ 32, 64, 32, 8 ],
-            "pretrain_gmf" : "gmf.model",
-            "pretrain_mlp" : "mlp.model",
-            "save_name" : "neumf.model"
+        "neumf_config": {
+            "name": "neumf",
+            "latent_dim_gmf": 16,
+            "latent_dim_mlp": 16,
+            "layers": [32, 64, 32, 8],
+            "pretrain_gmf": "gmf.model",
+            "pretrain_mlp": "mlp.model",
+            "save_name": "neumf.model"
         },
-        "checkpoint_dir" : "/checkpoints/",
-        "sample_dir" : null,
-        "run_dir" : "/runs/",
-        "dataset_dir" : "/datasets/",
-        "result_dir" : "/results/",
-        "result_file" : "results.csv",
-        "log_dir" : "/logs/"
+        "checkpoint_dir": "/checkpoints/",
+        "sample_dir": null,
+        "run_dir": "/runs/",
+        "dataset_dir": "/datasets/",
+        "result_dir": "/results/",
+        "result_file": "results.csv",
+        "log_dir": "/logs/"
     };
     await fsPromises.writeFile('/nfs/tr_rec/configs/' + configName, JSON.stringify(configFile));
 }

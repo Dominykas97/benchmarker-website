@@ -54,9 +54,11 @@ class Completed extends Component {
         });
         console.log(JSON.stringify({name: name}))
     }
+
     onClick(jobName) {
         window.open("https://console.ida.dcs.gla.ac.uk/k8s/ns/2262804sproject/jobs/" + jobName, '_blank');
     };
+
     render() {
         let jobsButtonShown = true;
         let podName = this.state.podsNames || "";
@@ -86,26 +88,27 @@ class Completed extends Component {
                         <h2>Completed tests</h2>
                         {names.map(name =>
                             jobsButtonShown ? (
-                                <div className="row" style={{marginBottom:5}}>
+                                <div className="row" style={{marginBottom: 5}}>
                                     <div className="col-8 btn-group-vertical" key={name}>
                                         <button type="button" className="btn btn-secondary" key={name}
                                                 onClick={() => this.toggleSelected(name)}>{name}</button>
                                     </div>
                                     <div className="col-4">
-                                    <div className="row">
-                                        <div key="runningTestsRemove">
-                                            <button type="button" className="btn btn-outline-danger" style={{marginRight:2}}
-                                                    onClick={() => this.callRemoveRunningTest(name)}>
-                                                Remove
-                                            </button>
+                                        <div className="row">
+                                            <div key="runningTestsRemove">
+                                                <button type="button" className="btn btn-outline-danger"
+                                                        style={{marginRight: 2}}
+                                                        onClick={() => this.callRemoveRunningTest(name)}>
+                                                    Remove
+                                                </button>
+                                            </div>
+                                            <div key="runningTestsInfo">
+                                                <button type="button" className="btn btn-outline-info"
+                                                        onClick={() => this.onClick(name)}>
+                                                    Info
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div key="runningTestsInfo">
-                                            <button type="button" className="btn btn-outline-info"
-                                                    onClick={() => this.onClick(name)}>
-                                                Info
-                                            </button>
-                                        </div>
-                                    </div>
                                     </div>
                                 </div>
                             ) : <div>There are no completed jobs.</div>

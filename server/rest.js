@@ -55,6 +55,7 @@ module.exports = class Rest {
             console.log(error.line);
         });
     }
+
     async removePod(name) {
         //DELETE /api/v1/namespaces/$NAMESPACE/pods/$NAME HTTP/1.1
         return this.client.api.v1.ns(this.projectName).pods(name).delete().catch(function (error) {
@@ -125,10 +126,11 @@ module.exports = class Rest {
             console.log(error.line);
         });
     }
-    async createNewRecommenderJob(jobName, trainPythonName, configName, limitCpu=1500, limitMemory=16, limitGpu=1, requestCpu=1000, requestMemory=6, requestGpu=1) {
+
+    async createNewRecommenderJob(jobName, trainPythonName, configName, limitCpu = 1500, limitMemory = 16, limitGpu = 1, requestCpu = 1000, requestMemory = 6, requestGpu = 1) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
-                "body":{
+                "body": {
                     "kind": "Job",
                     "apiVersion": "batch/v1",
                     "metadata": {
@@ -158,19 +160,18 @@ module.exports = class Rest {
                                 "serviceAccountName": "containerroot",
                                 "schedulerName": "default-scheduler",
                                 "terminationGracePeriodSeconds": 30,
-                                "securityContext": {
-                                },
+                                "securityContext": {},
                                 "containers": [
                                     {
                                         "resources": {
                                             "limits": {
-                                                "cpu": limitCpu+"m",//"1.5",
-                                                "memory": limitMemory+"Gi",//"16Gi",
+                                                "cpu": limitCpu + "m",//"1.5",
+                                                "memory": limitMemory + "Gi",//"16Gi",
                                                 "nvidia.com/gpu": limitGpu//"1"
                                             },
                                             "requests": {
-                                                "cpu": requestCpu+"m",//"1",
-                                                "memory": requestMemory+"Gi",//"6Gi",
+                                                "cpu": requestCpu + "m",//"1",
+                                                "memory": requestMemory + "Gi",//"6Gi",
                                                 "nvidia.com/gpu": requestGpu//"1"
                                             }
                                         },
@@ -198,9 +199,9 @@ module.exports = class Rest {
                                         ],
                                         "args": [
                                             // yes/envs/py37torch13/bin/python
-                                            "/nfs/tr_rec//src/"+trainPythonName, //train_vbcar.py",
+                                            "/nfs/tr_rec//src/" + trainPythonName, //train_vbcar.py",
                                             "--config_file",
-                                            "/nfs/tr_rec//configs/"+configName//test.json"//configName//"test.json"
+                                            "/nfs/tr_rec//configs/" + configName//test.json"//configName//"test.json"
                                             // "/nfs/tr_rec//jobScripts/test.job.sh"
                                         ]
                                     }
@@ -227,9 +228,9 @@ module.exports = class Rest {
         });
     }
 
-    async getPodName(jobName, label="deploymentconfig") {
+    async getPodName(jobName, label = "deploymentconfig") {
         // GET /api/v1/namespaces/$NAMESPACE/pods HTTP/1.1
-        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: label +"="+ jobName}}).catch(function (error) {
+        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: label + "=" + jobName}}).catch(function (error) {
             console.log(error);
             console.log(error.line);
         });
@@ -246,9 +247,9 @@ module.exports = class Rest {
         return podName;
     }
 
-    async checkIfPodIsPending(jobName, label="job-name") {
+    async checkIfPodIsPending(jobName, label = "job-name") {
         // GET /api/v1/namespaces/$NAMESPACE/pods HTTP/1.1
-        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: label +"="+ jobName}}).catch(function (error) {
+        const podsInfo = await this.client.api.v1.ns(this.projectName).pods().get({qs: {labelSelector: label + "=" + jobName}}).catch(function (error) {
             console.log(error);
             console.log(error.line);
         });
