@@ -159,21 +159,24 @@ app.post('/new_job', async (req, res) => {
         let configName = 'vbcar-' + req.body.vbCarJobName + '.json';
         await createRecommenderConfigFile("VBCAR", configName, req.body.vbCarDataSet, req.body.vbCarDataSplit, req.body.vbCarEmbedSize);
         console.log(req.body);
-        await rest.createNewRecommenderJob(jobName, "train_vbcar.py", configName)
+        await rest.createNewRecommenderJob(jobName, "train_vbcar.py", configName,
+            req.body.vbCarLimitCpu,req.body.vbCarLimitMemory,req.body.vbCarLimitGpu,req.body.vbCarRequestCpu,req.body.vbCarRequestGpu,req.body.vbCarRequestGpu)
     }
     if (req.body.jobType === "job-triple2vec-") {
         let jobName = req.body.jobType + req.body.triple2vecJobName;
         let configName = 'triple2vec-' + req.body.triple2vecJobName + '.json';
         await createRecommenderConfigFile("Triple2vec", configName, req.body.triple2vecDataSet, req.body.triple2vecDataSplit, req.body.triple2vecEmbedSize);
         console.log(req.body);
-        await rest.createNewRecommenderJob(jobName, "train_triple2vec.py", configName)
+        await rest.createNewRecommenderJob(jobName, "train_triple2vec.py", configName,
+            req.body.triple2vecLimitCpu,req.body.triple2vecLimitMemory,req.body.triple2vecLimitGpu,req.body.triple2vecRequestCpu,req.body.triple2vecRequestGpu,req.body.triple2vecRequestGpu)
     }
     if (req.body.jobType === "job-neumf-") {
         let jobName = req.body.jobType + req.body.neumfJobName;
         let configName = 'neumf-' + req.body.neumfJobName + '.json';
         await createNeumfConfigFile(configName, req.body.neumfDataSet, req.body.neumfDataSplit, req.body.neumfEmbedSize);
         console.log(req.body);
-        await rest.createNewRecommenderJob(jobName, "train_nmf.py", configName)
+        await rest.createNewRecommenderJob(jobName, "train_nmf.py", configName,
+            req.body.neumfLimitCpu,req.body.neumfLimitMemory,req.body.neumfLimitGpu,req.body.neumfRequestCpu,req.body.neumfRequestGpu,req.body.neumfRequestGpu)
     }
 });
 

@@ -23,14 +23,32 @@ class RunNew extends Component {
                         vbCarDataSet: 'dunnhumby',
                         vbCarEmbedSize: '32',
                         vbCarDataSplit: "leave_one_item",
+                        vbCarLimitCpu: '1500',
+                        vbCarLimitMemory: '16',
+                        vbCarLimitGpu: '1',
+                        vbCarRequestCpu: '1000',
+                        vbCarRequestMemory: '6',
+                        vbCarRequestGpu: '1',
                         triple2vecJobName: 't123abc',
                         triple2vecDataSet: 'dunnhumby',
                         triple2vecEmbedSize: '32',
                         triple2vecDataSplit: "leave_one_item",
+                        triple2vecLimitCpu: '1500',
+                        triple2vecLimitMemory: '16',
+                        triple2vecLimitGpu: '1',
+                        triple2vecRequestCpu: '1000',
+                        triple2vecRequestMemory: '6',
+                        triple2vecRequestGpu: '1',
                         neumfJobName: 'n123abc',
                         neumfDataSet: 'dunnhumby',
                         neumfEmbedSize: '32',
-                        neumfDataSplit: "leave_one_item"
+                        neumfDataSplit: "leave_one_item",
+                        neumfLimitCpu: '1500',
+                        neumfLimitMemory: '16',
+                        neumfLimitGpu: '1',
+                        neumfRequestCpu: '1000',
+                        neumfRequestMemory: '6',
+                        neumfRequestGpu: '1'
                     }}
                     enableReinitialize={true}
                     validate={values => {
@@ -67,7 +85,7 @@ class RunNew extends Component {
                                 {/*<div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">*/}
                                 {/*    <div className="row">*/}
                                 <Field
-                                    className="col-3 col-md-2 btn btn-secondary dropdown-toggle"
+                                    className="col-3 col-md-2"
                                     data-toggle="dropdown"
                                     aria-haspopup="false" as="select" name="jobType">
                                     <option value="job-appsimulator-flinksim-">Appsimulator</option>
@@ -274,33 +292,84 @@ class RunNew extends Component {
                                             </div>
                                         </div>
                                     </div>
-                                    {/*<Field className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2"*/}
-                                    {/*       type="intervalBetweenRequests"*/}
-                                    {/*       name="intervalBetweenRequests"/>*/}
-                                    {/*<ErrorMessage name="intervalBetweenRequests" component="div"/>*/}
-                                    {/*<div className="input-group-append">*/}
-                                    {/*    <span className="input-group-text">ms</span>*/}
-                                    {/*</div>*/}
-                                    {/*</div>*/}
                                 </div>
                             )}
                             {props.values.jobType === "job-vbcar-" && (
                                 <div>
-                                    <label
-                                        htmlFor="vbCarJobName">Job name: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <label htmlFor="vbCarJobName">Job name: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
-                                            <Field className="col-12" type="vbCarJobName"
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="vbCarJobName"
                                                    name="vbCarJobName"/>
                                             <ErrorMessage name="vbCarJobName" component="div"/>
                                         </div>
                                     </div>
-                                    <label
-                                        htmlFor="vbCarDataSet">Data Set: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <label htmlFor="vbCarLimitCpu">Limit cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="vbCarLimitCpu"
+                                                   name="vbCarLimitCpu"/>
+                                            <ErrorMessage name="vbCarLimitCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="vbCarLimitMemory">Limit memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="vbCarLimitMemory"
+                                                   name="vbCarLimitMemory"/>
+                                            <ErrorMessage name="vbCarLimitMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="vbCarLimitGpu">Limit gpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="vbCarLimitGpu"
+                                                   name="vbCarLimitGpu"/>
+                                            <ErrorMessage name="vbCarLimitGpu" component="div"/>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="vbCarRequestCpu">Request cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="vbCarRequestCpu"
+                                                   name="vbCarRequestCpu"/>
+                                            <ErrorMessage name="vbCarRequestCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="vbCarRequestMemory">Request memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="vbCarRequestMemory"
+                                                   name="vbCarRequestMemory"/>
+                                            <ErrorMessage name="vbCarRequestMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="vbCarRequestGpu">Request gpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="vbCarRequestGpu"
+                                                   name="vbCarRequestGpu"/>
+                                            <ErrorMessage name="vbCarRequestGpu" component="div"/>
+                                        </div>
+                                    </div>
+
+                                    <label htmlFor="vbCarDataSet">Data Set: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="vbCarDataSet">
                                                 <option value="dunnhumby">dunnhumby</option>
@@ -309,12 +378,11 @@ class RunNew extends Component {
                                         </div>
                                         <ErrorMessage name="vbCarDataSet" component="div"/>
                                     </div>
-                                    <label
-                                        htmlFor="vbCarEmbedSize">Embedding size: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <label htmlFor="vbCarEmbedSize">Embedding size: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="vbCarEmbedSize">
                                                 <option value="32">32</option>
@@ -326,13 +394,11 @@ class RunNew extends Component {
                                             <ErrorMessage name="vbCarEmbedSize" component="div"/>
                                         </div>
                                     </div>
-                                    <label
-                                        htmlFor="vbCarDataSplit">Data split:</label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <label htmlFor="vbCarDataSplit">Data split:</label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
-
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="vbCarDataSplit">
                                                 <option value="leave_one_item">leave_one_item</option>
@@ -347,7 +413,7 @@ class RunNew extends Component {
                                 //     <div className="row justify-content-xl-start" id={"frm"}>
                                 //         <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
                                 //                htmlFor="vbCarJobName">Job name: </label>
-                                //         <Field className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2" type="vbCarJobName"
+                                //         <Field className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2" type="vbCarJobName"
                                 //                name="vbCarJobName"/>
                                 //         <ErrorMessage name="vbCarJobName" component="div"/>
                                 //     </div>
@@ -368,7 +434,7 @@ class RunNew extends Component {
                                 //                htmlFor="vbCarDataSet">Data Set: </label>
                                 //         {/*<Field type="vbCarDataSet" name="vbCarDataSet"/>*/}
                                 //         <Field
-                                //             className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                //             className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
                                 //             data-toggle="dropdown"
                                 //             aria-haspopup="false" as="select" name="vbCarDataSet">
                                 //             {/*<option value=".*">everything</option>*/}
@@ -382,7 +448,7 @@ class RunNew extends Component {
                                 //                htmlFor="vbCarEmbedSize">Embedding size: </label>
                                 //         {/*<Field type="vbCarEmbedSize" name="vbCarEmbedSize"/>*/}
                                 //         <Field
-                                //             className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                //             className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
                                 //             data-toggle="dropdown"
                                 //             aria-haspopup="false" as="select" name="vbCarEmbedSize">
                                 //             {/*<option value=".*">everything</option>*/}
@@ -399,7 +465,7 @@ class RunNew extends Component {
                                 //                htmlFor="vbCarDataSplit">Data split: </label>
                                 //         {/*<Field type="vbCarDataSplit" name="vbCarDataSplit"/>*/}
                                 //         <Field
-                                //             className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                //             className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
                                 //             data-toggle="dropdown"
                                 //             aria-haspopup="false" as="select" name="vbCarDataSplit">
                                 //             {/*<option value=".*">everything</option>*/}
@@ -415,19 +481,79 @@ class RunNew extends Component {
                                 <div>
                                     <label
                                         htmlFor="triple2vecJobName">Job name: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
-                                            <Field className="col-12" type="triple2vecJobName"
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="triple2vecJobName"
                                                    name="triple2vecJobName"/>
                                             <ErrorMessage name="triple2vecJobName" component="div"/>
                                         </div>
                                     </div>
+                                    <label htmlFor="triple2vecLimitCpu">Limit cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="triple2vecLimitCpu"
+                                                   name="triple2vecLimitCpu"/>
+                                            <ErrorMessage name="triple2vecLimitCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="triple2vecLimitMemory">Limit memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="triple2vecLimitMemory"
+                                                   name="triple2vecLimitMemory"/>
+                                            <ErrorMessage name="triple2vecLimitMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="triple2vecLimitGpu">Limit gpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="triple2vecLimitGpu"
+                                                   name="triple2vecLimitGpu"/>
+                                            <ErrorMessage name="triple2vecLimitGpu" component="div"/>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="triple2vecRequestCpu">Request cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="triple2vecRequestCpu"
+                                                   name="triple2vecRequestCpu"/>
+                                            <ErrorMessage name="triple2vecRequestCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="triple2vecRequestMemory">Request memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="triple2vecRequestMemory"
+                                                   name="triple2vecRequestMemory"/>
+                                            <ErrorMessage name="triple2vecRequestMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="triple2vecRequestGpu">Request gpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="triple2vecRequestGpu"
+                                                   name="triple2vecRequestGpu"/>
+                                            <ErrorMessage name="triple2vecRequestGpu" component="div"/>
+                                        </div>
+                                    </div>
                                     <label
                                         htmlFor="triple2vecDataSet">Data Set: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="triple2vecDataSet">
                                                 <option value="dunnhumby">dunnhumby</option>
@@ -438,10 +564,10 @@ class RunNew extends Component {
                                     </div>
                                     <label
                                         htmlFor="triple2vecEmbedSize">Embedding size: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="triple2vecEmbedSize">
                                                 <option value="32">32</option>
@@ -455,11 +581,11 @@ class RunNew extends Component {
                                     </div>
                                     <label
                                         htmlFor="triple2vecDataSplit">Data split:</label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
 
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="triple2vecDataSplit">
                                                 <option value="leave_one_item">leave_one_item</option>
@@ -474,7 +600,7 @@ class RunNew extends Component {
                                 //     <div className="row justify-content-xl-start" id={"frm"}>
                                 //         <label className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1"
                                 //                htmlFor="triple2vecJobName">Job name: </label>
-                                //         <Field className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2"
+                                //         <Field className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2"
                                 //                type="triple2vecJobName"
                                 //                name="triple2vecJobName"/>
                                 //         <ErrorMessage name="triple2vecJobName" component="div"/>
@@ -496,7 +622,7 @@ class RunNew extends Component {
                                 //                htmlFor="triple2vecDataSet">Data Set: </label>
                                 //         {/*<Field type="triple2vecDataSet" name="triple2vecDataSet"/>*/}
                                 //         <Field
-                                //             className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                //             className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
                                 //             data-toggle="dropdown"
                                 //             aria-haspopup="false" as="select" name="triple2vecDataSet">
                                 //             {/*<option value=".*">everything</option>*/}
@@ -510,7 +636,7 @@ class RunNew extends Component {
                                 //                htmlFor="triple2vecEmbedSize">Embedding size: </label>
                                 //         {/*<Field type="triple2vecEmbedSize" name="triple2vecEmbedSize"/>*/}
                                 //         <Field
-                                //             className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                //             className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
                                 //             data-toggle="dropdown"
                                 //             aria-haspopup="false" as="select" name="triple2vecEmbedSize">
                                 //             {/*<option value=".*">everything</option>*/}
@@ -527,7 +653,7 @@ class RunNew extends Component {
                                 //                htmlFor="triple2vecDataSplit">Data split: </label>
                                 //         {/*<Field type="triple2vecDataSplit" name="triple2vecDataSplit"/>*/}
                                 //         <Field
-                                //             className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
+                                //             className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2 btn btn-secondary dropdown-toggle"
                                 //             data-toggle="dropdown"
                                 //             aria-haspopup="false" as="select" name="triple2vecDataSplit">
                                 //             {/*<option value=".*">everything</option>*/}
@@ -543,19 +669,79 @@ class RunNew extends Component {
                                 <div>
                                     <label
                                         htmlFor="neumfJobName">Job name: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
-                                            <Field className="col-12" type="neumfJobName"
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="neumfJobName"
                                                    name="neumfJobName"/>
                                             <ErrorMessage name="neumfJobName" component="div"/>
                                         </div>
                                     </div>
+                                    <label htmlFor="neumfLimitCpu">Limit cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="neumfLimitCpu"
+                                                   name="neumfLimitCpu"/>
+                                            <ErrorMessage name="neumfLimitCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="neumfLimitMemory">Limit memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="neumfLimitMemory"
+                                                   name="neumfLimitMemory"/>
+                                            <ErrorMessage name="neumfLimitMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="neumfLimitGpu">Limit gpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="neumfLimitGpu"
+                                                   name="neumfLimitGpu"/>
+                                            <ErrorMessage name="neumfLimitGpu" component="div"/>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="neumfRequestCpu">Request cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="neumfRequestCpu"
+                                                   name="neumfRequestCpu"/>
+                                            <ErrorMessage name="neumfRequestCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="neumfRequestMemory">Request memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="neumfRequestMemory"
+                                                   name="neumfRequestMemory"/>
+                                            <ErrorMessage name="neumfRequestMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="neumfRequestGpu">Request gpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10" type="neumfRequestGpu"
+                                                   name="neumfRequestGpu"/>
+                                            <ErrorMessage name="neumfRequestGpu" component="div"/>
+                                        </div>
+                                    </div>
                                     <label
                                         htmlFor="neumfDataSet">Data Set: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="neumfDataSet">
                                                 <option value="dunnhumby">dunnhumby</option>
@@ -566,10 +752,10 @@ class RunNew extends Component {
                                     </div>
                                     <label
                                         htmlFor="neumfEmbedSize">Embedding size: </label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="neumfEmbedSize">
                                                 <option value="32">32</option>
@@ -583,11 +769,11 @@ class RunNew extends Component {
                                     </div>
                                     <label
                                         htmlFor="neumfDataSplit">Data split:</label>
-                                    <div className="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
 
                                             <Field
-                                                className="col-12 btn btn-secondary dropdown-toggle"
+                                                className="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10"
                                                 data-toggle="dropdown"
                                                 aria-haspopup="false" as="select" name="neumfDataSplit">
                                                 <option value="leave_one_item">leave_one_item</option>

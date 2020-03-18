@@ -174,7 +174,7 @@ class Tests extends Component {
                                     <div className="col-7" key="testsInQueue">
                                         {name}
                                     </div>
-                                    <button type="button" className="btn btn-outline-danger"
+                                    <button type="button" className="btn btn-outline-danger" style={{marginRight:2}}
                                             onClick={() => this.callRemoveFromQueue(name)}>
                                         Remove
                                     </button>

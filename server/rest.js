@@ -125,7 +125,7 @@ module.exports = class Rest {
             console.log(error.line);
         });
     }
-    async createNewRecommenderJob(jobName, trainPythonName, configName) {
+    async createNewRecommenderJob(jobName, trainPythonName, configName, limitCpu=1500, limitMemory=16, limitGpu=1, requestCpu=1000, requestMemory=6, requestGpu=1) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
                 "body":{
@@ -164,14 +164,14 @@ module.exports = class Rest {
                                     {
                                         "resources": {
                                             "limits": {
-                                                "cpu": "1.5",
-                                                "memory": "16Gi",
-                                                "nvidia.com/gpu": "1"
+                                                "cpu": limitCpu+"m",//"1.5",
+                                                "memory": limitMemory+"Gi",//"16Gi",
+                                                "nvidia.com/gpu": limitGpu//"1"
                                             },
                                             "requests": {
-                                                "cpu": "1",
-                                                "memory": "6Gi",
-                                                "nvidia.com/gpu": "1"
+                                                "cpu": requestCpu+"m",//"1",
+                                                "memory": requestMemory+"Gi",//"6Gi",
+                                                "nvidia.com/gpu": requestGpu//"1"
                                             }
                                         },
                                         "terminationMessagePath": "/dev/termination-log",
