@@ -135,11 +135,11 @@ class Tests extends Component {
         return (
             <div className="container-fluid">
                 <div className="row">
-                    <div className="col-3">
+                    <div className="col-4">
                         <h2>Running tests</h2>
                         {runningTestsButtonShown ? (
                             runningJobsNames.map(name =>
-                                <div className="row justify-content-sm-start runningJobs" key={name}>
+                                <div className="row justify-content-sm-start runningJobs" key={name} style={{marginBottom:5}}>
                                     <div className="col-8" key="runningTests">
                                         <div className="btn-group-vertical" key={name}>
                                             <button type="button" className="btn btn-secondary btn-block" key={name}
@@ -150,7 +150,7 @@ class Tests extends Component {
                                     </div>
                                     <div className="row">
                                         <div key="runningTestsRemove">
-                                            <button type="button" className="btn btn-outline-danger"
+                                            <button type="button" className="btn btn-outline-danger" style={{marginRight:2}}
                                                     onClick={() => this.callRemoveRunningTest(name)}>
                                                 Remove
                                             </button>
@@ -188,7 +188,7 @@ class Tests extends Component {
                             )
                         ) : <div>There are no jobs in the queue.</div>}
                     </div>
-                    <div className="col-9">
+                    <div className="col-8">
                         <Formik
                             initialValues={{
                                 model: ".*",
@@ -210,7 +210,7 @@ class Tests extends Component {
                             {props => (
                                 <Form className="form-group">
                                     <div className="row justify-content-start" id={"frm"}>
-                                        <div className="col-2 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                        <div className="col-1 col-sm-2 col-md-2 col-lg-2 col-xl-2">
                                             <label htmlFor="model">Model: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
@@ -223,7 +223,7 @@ class Tests extends Component {
                                             <ErrorMessage name="model" component="div"/>
                                         </div>
 
-                                        <div className="col-2 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+                                        <div className="col-1 col-sm-2 col-md-2 col-lg-2 col-xl-2">
                                             <label htmlFor="dataSet">Dataset: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
@@ -235,7 +235,7 @@ class Tests extends Component {
                                             <ErrorMessage name="dataSet" component="div"/>
                                         </div>
 
-                                        <div className="col-2">
+                                        <div className="col-3 col-sm-3 col-md-3 col-lg-2">
                                             <label htmlFor="embedSize">Embed size: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
@@ -250,7 +250,7 @@ class Tests extends Component {
                                             <ErrorMessage name="embedSize" component="div"/>
                                         </div>
 
-                                        <div className="col-2">
+                                        <div className="col-3 col-md-3 col-lg-2">
                                             <label htmlFor="dataSplit">Data split: </label>
                                             <Field className="col-12 btn btn-secondary dropdown-toggle"
                                                    data-toggle="dropdown"
@@ -262,8 +262,8 @@ class Tests extends Component {
                                             </Field>
                                             <ErrorMessage name="dataSplit" component="div"/>
                                         </div>
-                                        <button type="submit" className="col-2 btn-secondary"
-                                                style={{marginTop: 20}}>
+                                        <button type="submit" className="col-2 col-xl-1 btn-secondary"
+                                                style={{marginTop: 30}}>
                                             Update
                                         </button>
                                     </div>
@@ -273,19 +273,21 @@ class Tests extends Component {
                         </Formik>
                         <div className="row">
                             <div className="col-6">
-                                <iframe src={source} width="700" height="725" frameBorder="0"/>
+                                <iframe src={source} width="500" height="725" frameBorder="0"/>
                             </div>
                             {this.state.selectedItemIndex !== undefined ? (
-                                <div>
-                                    <div className="row"> Pod name: {podName[this.state.selectedItemIndex]}</div>
-                                    <div className="row">
-                                        <iframe title={"cpu"} src={sourceCpu} width="600" height="350"
+                                <div className="row" style={{marginLeft:20}}>
+                                <div className="col-12">
+                                    <div> Pod name: {podName[this.state.selectedItemIndex]}</div>
+                                    <div>
+                                        <iframe title={"cpu"} src={sourceCpu} width="450" height="350"
                                                 frameBorder="0" scrolling="no"/>
                                     </div>
-                                    <div className="row">
-                                        <iframe title={"memory"} src={sourceMemory} width="600" height="350"
+                                    <div>
+                                        <iframe title={"memory"} src={sourceMemory} width="450" height="350"
                                                 frameBorder="0" scrolling="no"/>
                                     </div>
+                                </div>
                                 </div>) : null}
 
                         </div>
