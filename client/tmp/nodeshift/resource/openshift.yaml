@@ -17,7 +17,7 @@ items:
         app.openshift.io/runtime: nodejs
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 4f8dbf0e88ce5a88aa24f4f89566068b1ad2671c
+        nodeshift/git-commit: fcc5e86ac355ae18fea57446dd5c2f5d5287ba4a
     spec:
       replicas: 1
       revisionHistoryLimit: 2
@@ -45,7 +45,7 @@ items:
             app: benchmarker-website
           annotations:
             nodeshift/git-branch: master
-            nodeshift/git-commit: 4f8dbf0e88ce5a88aa24f4f89566068b1ad2671c
+            nodeshift/git-commit: fcc5e86ac355ae18fea57446dd5c2f5d5287ba4a
         spec:
           containers:
             - image: benchmarker-website
@@ -82,7 +82,7 @@ items:
         app.openshift.io/runtime: nodejs
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 4f8dbf0e88ce5a88aa24f4f89566068b1ad2671c
+        nodeshift/git-commit: fcc5e86ac355ae18fea57446dd5c2f5d5287ba4a
   - apiVersion: route.openshift.io/v1
     kind: Route
     spec:

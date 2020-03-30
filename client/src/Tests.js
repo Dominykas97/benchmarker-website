@@ -25,7 +25,7 @@ class Tests extends Component {
         fetch('/remove_job', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({name: name})
         });
@@ -81,7 +81,7 @@ class Tests extends Component {
     };
     onSelectedOptionsChange;
 
-    onClick(jobName) {
+    openInfoPage(jobName) {
         window.open("https://console.ida.dcs.gla.ac.uk/k8s/ns/2262804sproject/jobs/" + jobName, '_blank');
     };
 
@@ -159,7 +159,7 @@ class Tests extends Component {
                                         </div>
                                         <div key="runningTestsInfo">
                                             <button type="button" className="btn btn-outline-info"
-                                                    onClick={() => this.onClick(name)}>
+                                                    onClick={() => this.openInfoPage(name)}>
                                                 Info
                                             </button>
                                         </div>
@@ -182,7 +182,7 @@ class Tests extends Component {
                                     </button>
                                     <div key="QueueInfo">
                                         <button type="button" className="btn btn-outline-info"
-                                                onClick={() => this.onClick(name)}>
+                                                onClick={() => this.openInfoPage(name)}>
                                             Info
                                         </button>
                                     </div>
@@ -214,7 +214,7 @@ class Tests extends Component {
                                     <div className="row justify-content-start" id={"frm"}>
                                         <div className="col-1 col-sm-2 col-md-2 col-lg-2 col-xl-2">
                                             <label htmlFor="model">Model: </label>
-                                            <Field className="col-12 btn btn-secondary dropdown-toggle"
+                                            <Field className="col-12"
                                                    data-toggle="dropdown"
                                                    aria-haspopup="false" as="select" name="model">
                                                 <option value=".*">everything</option>
@@ -227,7 +227,7 @@ class Tests extends Component {
 
                                         <div className="col-1 col-sm-2 col-md-2 col-lg-2 col-xl-2">
                                             <label htmlFor="dataSet">Dataset: </label>
-                                            <Field className="col-12 btn btn-secondary dropdown-toggle"
+                                            <Field className="col-12"
                                                    data-toggle="dropdown"
                                                    aria-haspopup="false" as="select" name="dataSet">
                                                 <option value=".*">everything</option>
@@ -239,7 +239,7 @@ class Tests extends Component {
 
                                         <div className="col-3 col-sm-3 col-md-3 col-lg-2">
                                             <label htmlFor="embedSize">Embed size: </label>
-                                            <Field className="col-12 btn btn-secondary dropdown-toggle"
+                                            <Field className="col-12"
                                                    data-toggle="dropdown"
                                                    aria-haspopup="false" as="select" name="embedSize">
                                                 <option value=".*">everything</option>
@@ -254,7 +254,7 @@ class Tests extends Component {
 
                                         <div className="col-3 col-md-3 col-lg-2">
                                             <label htmlFor="dataSplit">Data split: </label>
-                                            <Field className="col-12 btn btn-secondary dropdown-toggle"
+                                            <Field className="col-12"
                                                    data-toggle="dropdown"
                                                    aria-haspopup="false" as="select" name="dataSplit">
                                                 <option value=".*">everything</option>

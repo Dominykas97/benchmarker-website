@@ -209,12 +209,12 @@ app.post('/remove_job', async (req, res) => {
     // res.redirect('/new');
 });
 
-app.post('/remove_from_queue', (req, res) => {
+app.post('/remove_from_queue', async (req, res) => {
     console.log("app.post removing name from queue:");
     console.log(req.body.name);
     deletedQueueNames.add(req.body.name);
     console.log(deletedQueueNames);
-    // removeJob(req.body.name);
+    await rest.removeJob(req.body.name);
     // res.redirect('/new');
 });
 
@@ -236,7 +236,7 @@ app.get('/running_jobs', async (req, res) => {
         if (runningJobs.hasOwnProperty(job)) {
             console.log(job);
             // let jobName = runningJobs[job].metadata.name;
-            podsNames[runningJobs[job]] = await rest.getPodName(runningJobs[job], "job-name")
+            podsNames[runningJobs[job]] = await rest.getPodName(runningJobs[job], "job-name");
         }
     }
     console.log("Pods Names");
@@ -254,6 +254,8 @@ app.get('/completed_jobs', async (req, res) => {
     let jobItems = await rest.getJobs();
     let jobsNames = [];
     let podsNames = {};
+    let startTimes = {};
+    let completionTimes = {};
     let jobs = jobItems.body.items;
     // let podsJSON = await fsPromises.readFile('/nfs/pods.json');
     let knownPodsNames = await readPodsFromFile();//JSON.parse(podsJSON.toString());
@@ -263,6 +265,16 @@ app.get('/completed_jobs', async (req, res) => {
         if (jobs.hasOwnProperty(job)) {
             if (jobs[job].status.succeeded === 1) {
                 let jobName = jobs[job].metadata.name;
+                let startTime = new Date(jobs[job].status.startTime.replace("T", " ").slice(0, -1)).getTime();
+                console.log(startTime);
+                let completionTime = new Date(jobs[job].status.completionTime.replace("T", " ").slice(0, -1)).getTime();
+                console.log(completionTime);
+                // let b1 = completionTime.replace("T", " ").slice(0, -1);
+                // b1 = b1.replace("Z", "");
+                // a1 = new Date(b1).getTime();
+                startTimes[jobName] = startTime;
+                completionTimes[jobName] = completionTime;
+
                 jobsNames.push(jobName);
                 let deploymentConfigTaskManagerName = getDeploymentConfigTaskManagerName(jobName);
                 let deploymentConfigJobManagerName = getDeploymentConfigJobManagerName(jobName);
@@ -295,7 +307,7 @@ app.get('/completed_jobs', async (req, res) => {
     console.log(knownPodsNames);
     await fsPromises.writeFile('/nfs/pods.json', JSON.stringify(knownPodsNames));
 
-    res.send({data: jobs, jobsNames: jobsNames, podsNames: podsNames});
+    res.send({data: jobs, jobsNames: jobsNames, podsNames: podsNames, startTimes: startTimes, completionTimes: completionTimes});
 
 });
 
