@@ -198,13 +198,19 @@ app.post('/remove_job', async (req, res) => {
     let podName = await rest.getPodName(jobName, "job-name");
     console.log(podName);
     await rest.removeJob(jobName);
+    let knownPodsNames = await readPodsFromFile();//JSON.parse(podsJSON.toString());
+    delete knownPodsNames[jobName];
+    await fsPromises.writeFile('/nfs/pods.json', JSON.stringify(knownPodsNames));
     if (typeof podName !== 'undefined') {
         await rest.removePod(podName);
+
     }
     let jobParameters = jobsServicesDeploymentConfigs[jobName];
     if (typeof jobParameters !== 'undefined') {
         removeJobDependencies(jobName);
         delete jobsServicesDeploymentConfigs[jobName];
+
+
     }
     // res.redirect('/new');
 });
@@ -276,28 +282,36 @@ app.get('/completed_jobs', async (req, res) => {
                 completionTimes[jobName] = completionTime;
 
                 jobsNames.push(jobName);
-                let deploymentConfigTaskManagerName = getDeploymentConfigTaskManagerName(jobName);
-                let deploymentConfigJobManagerName = getDeploymentConfigJobManagerName(jobName);
-                // let serviceTaskManagerName = getServiceTaskManagerName(jobName);
-                // let serviceJobManagerName = getServiceJobManagerName(jobName);
-                let podTaskManagerName;
-                let podJobManagerName;
-                if (jobName in knownPodsNames) {
-                    podTaskManagerName = knownPodsNames[jobName];
-                } else {
-                    podTaskManagerName = await rest.getPodName(deploymentConfigTaskManagerName);//completedJob.deploymentConfigTaskManagerName);
-                    podJobManagerName = await rest.getPodName(deploymentConfigJobManagerName);//completedJob.deploymentConfigTaskManagerName);
-                    knownPodsNames[jobName] = podTaskManagerName;
-                    removeJobDependencies(jobName);
-                }
-                console.log(jobName);
-                console.log(deploymentConfigTaskManagerName);
-                console.log("POD NAME");
-                console.log(podTaskManagerName);
-                podsNames[jobName] = podTaskManagerName;
-                console.log(podsNames);
 
-                delete jobsServicesDeploymentConfigs[jobName];
+                if(jobs[job].metadata.labels.app === "appsimulator") {
+                    let deploymentConfigTaskManagerName = getDeploymentConfigTaskManagerName(jobName);
+                    let deploymentConfigJobManagerName = getDeploymentConfigJobManagerName(jobName);
+                    // let serviceTaskManagerName = getServiceTaskManagerName(jobName);
+                    // let serviceJobManagerName = getServiceJobManagerName(jobName);
+                    let podTaskManagerName;
+                    let podJobManagerName;
+                    if (jobName in knownPodsNames) {
+                        podTaskManagerName = knownPodsNames[jobName];
+                    } else {
+                        podTaskManagerName = await rest.getPodName(deploymentConfigTaskManagerName);//completedJob.deploymentConfigTaskManagerName);
+                        podJobManagerName = await rest.getPodName(deploymentConfigJobManagerName);//completedJob.deploymentConfigTaskManagerName);
+                        knownPodsNames[jobName] = podTaskManagerName;
+                        removeJobDependencies(jobName);
+                    }
+                    console.log(jobName);
+                    console.log(deploymentConfigTaskManagerName);
+                    console.log("POD NAME");
+                    console.log(podTaskManagerName);
+                    podsNames[jobName] = podTaskManagerName;
+                    console.log(podsNames);
+
+                    delete jobsServicesDeploymentConfigs[jobName];
+                }
+                else {
+                    console.log("ABC");
+                    console.log(jobName);
+                    podsNames[jobName] = await rest.getCompletedPodName(jobName);
+                }
             }
         }
     }

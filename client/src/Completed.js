@@ -17,7 +17,8 @@ class Completed extends Component {
                 jobsNames: res.jobsNames,
                 podsNames: res.podsNames,
                 startTimes: res.startTimes,
-                completionTimes: res.completionTimes}))
+                completionTimes: res.completionTimes
+            }))
             .catch(err => console.log(err));
         // console.log("componentDidMount");
         // console.log(this.state.data);
@@ -64,29 +65,27 @@ class Completed extends Component {
         window.open("https://console.ida.dcs.gla.ac.uk/k8s/ns/2262804sproject/jobs/" + jobName, '_blank');
     };
 
+    msToTime(duration) {
+        let seconds = Math.floor((duration / 1000) % 60),
+            minutes = Math.floor((duration / (1000 * 60)) % 60),
+            hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+        return ((hours === "00") ? "" : hours + " hours ") + ((minutes === "00") ? "" : minutes + " minutes ") + seconds + " seconds";
+        // return hours + ":" + minutes + ":" + seconds;
+    }
+
     render() {
         let jobsButtonShown = true;
         let podName = this.state.podsNames || "";
         let startTime = this.state.startTimes || "";
         let completionTime = this.state.completionTimes || "";
-        // let a1, a2;
-        // if(typeof this.state.selectedItemIndex !== "undefined"){
-        //     if(typeof startTime !== "undefined"){
-        //         let b1 = startTime[this.state.selectedItemIndex].replace("T", " ");
-        //         b1 = b1.replace("Z", "");
-        //         a1 = new Date(b1).getTime();
-        //     }
-        //     if(typeof completionTime !== "undefined"){
-        //         let b2 = completionTime[this.state.selectedItemIndex].replace("T", " ");
-        //         b2 = b2.replace("Z", "");
-        //         a2 = new Date(b2).getTime();
-        //     }
-        // }
 
         let sourceCpu = "https://grafana-openshift-monitoring.ida.dcs.gla.ac.uk/d-solo/6581e46e4e5c7ba40a07646395ef7b23/k8s-compute-resources-pod?refresh=10s&orgId=1&var-datasource=prometheus&var-namespace=2262804sproject&var-pod="
-            + podName[this.state.selectedItemIndex] + "&panelId=0&from="+startTime[this.state.selectedItemIndex]+"&to="+completionTime[this.state.selectedItemIndex];
+            + podName[this.state.selectedItemIndex] + "&panelId=0&from=" + startTime[this.state.selectedItemIndex] + "&to=" + completionTime[this.state.selectedItemIndex];
         let sourceMemory = "https://grafana-openshift-monitoring.ida.dcs.gla.ac.uk/d-solo/6581e46e4e5c7ba40a07646395ef7b23/k8s-compute-resources-pod?refresh=10s&orgId=1&var-datasource=prometheus&var-namespace=2262804sproject&var-pod="
-            + podName[this.state.selectedItemIndex] + "&panelId=2&from="+startTime[this.state.selectedItemIndex]+"&to="+completionTime[this.state.selectedItemIndex];
+            + podName[this.state.selectedItemIndex] + "&panelId=2&from=" + startTime[this.state.selectedItemIndex] + "&to=" + completionTime[this.state.selectedItemIndex];
         let data = this.state.data || 'there is no data';
         let names = this.state.jobsNames;
         if (typeof names === 'undefined' || names.length === 0) {
@@ -139,19 +138,11 @@ class Completed extends Component {
                         <div className="col-7">
                             <ul>
                                 {podName[this.state.selectedItemIndex]}
-
                             </ul>
                             <ul>
-                                {startTime[this.state.selectedItemIndex]}
-                                {/*{a1}*/}
+                                Completed
+                                in {this.msToTime(completionTime[this.state.selectedItemIndex] - startTime[this.state.selectedItemIndex])}
                             </ul>
-                            <ul>
-                                {completionTime[this.state.selectedItemIndex]}
-                                {/*{a2}*/}
-                                {/*{new Date(completionTime[this.state.selectedItemIndex]).getTime()}*/}
-
-                            </ul>
-                            {/*{new Date(completionTime[this.state.selectedItemIndex])}*/}
                             <ul>
                                 <iframe title={"cpu"} src={sourceCpu} width="450" height="350" frameBorder="0"
                                         scrolling="no"/>
