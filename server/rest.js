@@ -64,7 +64,7 @@ module.exports = class Rest {
         });
     }
 
-    async createNewJob(jobName, serviceJobManagerName, imageStreamStartName) {
+    async createNewJob(jobName, serviceJobManagerName, imageStreamStartName, limitCpu, limitMemory, requestCpu, requestMemory) {
         // POST /apis/batch/v1/namespaces/$NAMESPACE/jobs HTTP/1.1
         await this.client.apis.batch.v1.ns(this.projectName).jobs.post({
                 "body": {
@@ -77,6 +77,7 @@ module.exports = class Rest {
                     "spec": {
                         "parallelism": 1,
                         "completions": 1,
+                        "backoffLimit": 10,
                         "template": {
                             "metadata": {
                                 "labels": {
@@ -90,7 +91,16 @@ module.exports = class Rest {
                                     {
                                         "name": "flinksim",
                                         "image": "docker-registry.default.svc:5000/2262804sproject/" + imageStreamStartName + ":v1",
-                                        "resources": {},
+                                        "resources": {
+                                            "limits": {
+                                                "cpu": limitCpu + "m",//"1.5",
+                                                "memory": limitMemory + "Gi",//"16Gi",
+                                            },
+                                            "requests": {
+                                                "cpu": requestCpu + "m",//"1",
+                                                "memory": requestMemory + "Gi",//"6Gi",
+                                            }
+                                        },
                                         "volumeMounts": [
                                             {
                                                 "name": "config-files",
@@ -336,7 +346,7 @@ module.exports = class Rest {
                         "runPolicy": "Serial",
                         "source": {
                             "dockerfile":
-                                "FROM flink\n" +
+                                "FROM flink:1.8.0\n" +
                                 "RUN wget http://nfswebhost-2262804sproject.ida.dcs.gla.ac.uk/benchmarker/config/flink-conf.yaml -O conf/flink-conf.yaml\n" +
                                 "RUN mv opt/flink-metrics-prometheus-* lib/ && chgrp -Rf root /opt/flink && chmod -Rf 775 /opt/flink\n" +
                                 "RUN wget http://nfswebhost-2262804sproject.ida.dcs.gla.ac.uk/benchmarker/target/benchmarker-0.1.jar -O ./benchmarker-0.1.jar\n" +
@@ -458,17 +468,19 @@ module.exports = class Rest {
     }
 
     async patchComponentsConfigMap(values) {
+        let outputSize = 1000*values.pageSize/values.numberOfRequestsPerLoad;
+        let cpuTime = values.pageLoadTime/values.numberOfRequestsPerLoad;
         // PATCH /api/v1/namespaces/$NAMESPACE/configmaps/$NAME HTTP/1.1
         await this.client.api.v1.ns(this.projectName).configmaps(this.configMapName).patch({
                 "body": {
                     "data": {
-                        "components.yaml": "- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: " + values.memoryUsage
-                            + " # MB\n  outputSize: 1 # KB\n- parents:\n    - 0\n  cpuTime: 5 # ms\n  memoryUsage: " + values.memoryUsage
-                            + " # MB\n  outputSize: 1 # KB\n  io:\n    mode: startup # startup, regular, or both\n "
+                        "components.yaml": "- parents:\n    - 0\n  cpuTime: "+cpuTime+" # ms\n  memoryUsage: " + values.memoryUsage
+                            + " # MB\n  outputSize: "+outputSize+" # KB\n- parents:\n    - 0\n  cpuTime: "+cpuTime+" # ms\n  memoryUsage: " + values.memoryUsage
+                            + " # MB\n  outputSize: "+outputSize+" # KB\n  io:\n    mode: startup # startup, regular, or both\n "
                             + "   numRequests: " + values.numberOfRequests + "\n    responseSize: " + values.responseSize
                             + " # KB\n    latency: " + values.latency + " # ms\n    bandwidth: " + values.bandwidth
                             + " # Mbps\n    intervalBetweenRequests: " + values.intervalBetweenRequests + " # ms\n- parents:\n    - 1\n    - 2\n"
-                            + "  cpuTime: 5 # ms\n  memoryUsage: " + values.memoryUsage + " # MB\n  outputSize: 1 # KB\n  io:\n    "
+                            + "  cpuTime: "+cpuTime+" # ms\n  memoryUsage: " + values.memoryUsage + " # MB\n  outputSize: "+outputSize+" # KB\n  io:\n    "
                             + "mode: both # startup, regular, or both\n    numRequests: " + values.numberOfRequests + "\n    responseSize: " +
                             values.responseSize + " # KB\n    latency: " + values.latency + " # ms\n    bandwidth: " + values.bandwidth
                             + " # Mbps\n    intervalBetweenRequests: " + values.intervalBetweenRequests + " # ms"
@@ -550,7 +562,7 @@ module.exports = class Rest {
                             }
                         ],
                         "selector": {
-                            "group": "appsimulator-flink-taskmanager"
+                            "group": serviceTaskManagerName//"appsimulator-flink-taskmanager"
                         }
                     },
                     "status": {
@@ -598,7 +610,7 @@ module.exports = class Rest {
                             }
                         ],
                         "selector": {
-                            "group": "appsimulator-flink-jobmanager"
+                            "group": serviceJobManagerName//"appsimulator-flink-jobmanager"
                         }
                     },
                     "status": {
@@ -639,7 +651,7 @@ module.exports = class Rest {
                                 "labels": {
                                     "deploymentconfig": deploymentConfigJobManagerName,
                                     "app": "appsimulator",
-                                    "group": "appsimulator-flink-jobmanager"
+                                    "group": serviceJobManagerName//"appsimulator-flink-jobmanager"
                                 }
                             },
                             "spec": {
@@ -704,7 +716,7 @@ module.exports = class Rest {
         });
     }
 
-    async deployTaskManager(serviceJobManagerName, deploymentConfigJobManagerName) {
+    async deployTaskManager(serviceJobManagerName, serviceTaskManagerName, deploymentConfigJobManagerName) {
         await this.client.apis.app.v1.ns(this.projectName).deploymentconfigs.post({
             "body": {
                 "apiVersion": "apps.openshift.io/v1",
@@ -723,7 +735,7 @@ module.exports = class Rest {
                             "labels": {
                                 "deploymentconfig": deploymentConfigJobManagerName,
                                 "app": "appsimulator",
-                                "group": "appsimulator-flink-taskmanager"
+                                "group": serviceTaskManagerName//"appsimulator-flink-taskmanager"
                             }
                         },
                         "spec": {

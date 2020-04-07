@@ -16,11 +16,10 @@ if (typeof ip === "undefined") {
     ip = "127.0.0.1";
 }
 
-let jobsQueue = [];
+// let jobsQueue = [];
 let jobsServicesDeploymentConfigs = {};
-let deletedQueueNames = new Set();
+// let deletedQueueNames = new Set();
 let lastRunningJobName = null;
-
 let lastCompletedJobName = null;
 
 // async function checkRunningJob() {
@@ -106,8 +105,6 @@ async function prepareAndRunNewJob(req) {
     console.log("/new_job jobsServicesDeploymentConfigs:");
     console.log(jobsServicesDeploymentConfigs);
     await rest.patchPrometheusConfigMap(serviceJobManagerName, serviceTaskManagerName);
-    await rest.patchFlinkConfigMap(serviceJobManagerName);
-    await rest.patchComponentsConfigMap(req.body);
     await rest.createJobManagerService(serviceJobManagerName);
     await rest.createTaskManagerService(serviceTaskManagerName);
     await rest.createStartImageStream(imageStreamStartName);
@@ -119,7 +116,7 @@ async function prepareAndRunNewJob(req) {
         await rest.deployJobManager(serviceJobManagerName, deploymentConfigJobManagerName);
     }, 20000);
     setTimeout(async function () {
-        await rest.deployTaskManager(serviceJobManagerName, deploymentConfigTaskManagerName);
+        await rest.deployTaskManager(serviceJobManagerName, serviceTaskManagerName, deploymentConfigTaskManagerName);
     }, 40000);
     setTimeout(function () {
         request.post(
@@ -133,15 +130,18 @@ async function prepareAndRunNewJob(req) {
         );
     }, 50000);
     setTimeout(async function () {
-        await rest.createNewJob(jobName, serviceJobManagerName, imageStreamStartName);
+        await rest.patchFlinkConfigMap(serviceJobManagerName);
+        await rest.patchComponentsConfigMap(req.body);
+        await rest.createNewJob(jobName, serviceJobManagerName, imageStreamStartName,
+            req.body.simulatorLimitCpu, req.body.simulatorLimitMemory, req.body.simulatorRequestCpu, req.body.simulatorRequestMemory)
     }, 70000);
 }
 
 app.post('/new_job', async (req, res) => {
-    let jobs = await rest.getJobs();
-    let runningJobs = await getRunningJobs(jobs, []);
-    console.log("running jobs:");
-    console.log(runningJobs);
+    // let jobs = await rest.getJobs();
+    // let runningJobs = await getRunningJobs(jobs, []);
+    // console.log("running jobs:");
+    // console.log(runningJobs);
     if (req.body.jobType === "job-appsimulator-flinksim-") {
         req.body.jobName = req.body.jobType + req.body.jobName;
         // if (typeof runningJobs === 'undefined' || runningJobs.length === 0) {
@@ -156,28 +156,28 @@ app.post('/new_job', async (req, res) => {
     }
     if (req.body.jobType === "job-vbcar-") {
         // let dataSplit = req.body.vbCarDataSplit.split("_").join("-");
-        let jobName = req.body.jobType + req.body.vbCarDataSet.charAt(0) +req.body.vbCarDataSplit.slice(-1)+req.body.vbCarEmbedSize +"-"+ req.body.vbCarJobName;
+        let jobName = req.body.jobType + req.body.vbCarDataSet.charAt(0) + req.body.vbCarDataSplit.slice(-1) + req.body.vbCarEmbedSize + "-" + req.body.vbCarJobName;
         let configName = 'vbcar-' + req.body.vbCarJobName + '.json';
         await createRecommenderConfigFile("VBCAR", configName, req.body.vbCarDataSet, req.body.vbCarDataSplit, req.body.vbCarEmbedSize);
         console.log(req.body);
         await rest.createNewRecommenderJob(jobName, "train_vbcar.py", configName,
-            req.body.vbCarLimitCpu, req.body.vbCarLimitMemory, req.body.vbCarLimitGpu, req.body.vbCarRequestCpu, req.body.vbCarRequestGpu, req.body.vbCarRequestGpu)
+            req.body.vbCarLimitCpu, req.body.vbCarLimitMemory, req.body.vbCarLimitGpu, req.body.vbCarRequestCpu, req.body.vbCarRequestMemory, req.body.vbCarRequestGpu)
     }
     if (req.body.jobType === "job-triple2vec-") {
-        let jobName = req.body.jobType + req.body.triple2vecDataSet.charAt(0) +req.body.triple2vecDataSplit.slice(-1)+req.body.triple2vecEmbedSize +"-"+ req.body.triple2vecJobName;
+        let jobName = req.body.jobType + req.body.triple2vecDataSet.charAt(0) + req.body.triple2vecDataSplit.slice(-1) + req.body.triple2vecEmbedSize + "-" + req.body.triple2vecJobName;
         let configName = 'triple2vec-' + req.body.triple2vecJobName + '.json';
-        await createRecommenderConfigFile("Triple2vec", configName, req.body.triple2vecDataSet, req.body.triple2vecDataSplit, req.body.triple2vecEmbedSize);
+        await createRecommenderConfigFile("Triple2vec", configName, req.body.triple2vecDataSet, req.body.triple2vecRequestMemory, req.body.triple2vecEmbedSize);
         console.log(req.body);
         await rest.createNewRecommenderJob(jobName, "train_triple2vec.py", configName,
             req.body.triple2vecLimitCpu, req.body.triple2vecLimitMemory, req.body.triple2vecLimitGpu, req.body.triple2vecRequestCpu, req.body.triple2vecRequestGpu, req.body.triple2vecRequestGpu)
     }
     if (req.body.jobType === "job-neumf-") {
-        let jobName = req.body.jobType + req.body.neumfDataSet.charAt(0) +req.body.neumfDataSplit.slice(-1)+req.body.neumfEmbedSize +"-"+ req.body.neumfJobName;
+        let jobName = req.body.jobType + req.body.neumfDataSet.charAt(0) + req.body.neumfDataSplit.slice(-1) + req.body.neumfEmbedSize + "-" + req.body.neumfJobName;
         let configName = 'neumf-' + req.body.neumfJobName + '.json';
         await createNeumfConfigFile(configName, req.body.neumfDataSet, req.body.neumfDataSplit, req.body.neumfEmbedSize);
         console.log(req.body);
         await rest.createNewRecommenderJob(jobName, "train_nmf.py", configName,
-            req.body.neumfLimitCpu, req.body.neumfLimitMemory, req.body.neumfLimitGpu, req.body.neumfRequestCpu, req.body.neumfRequestGpu, req.body.neumfRequestGpu)
+            req.body.neumfLimitCpu, req.body.neumfLimitMemory, req.body.neumfLimitGpu, req.body.neumfRequestCpu, req.body.neumfRequestMemory, req.body.neumfRequestGpu)
     }
 });
 
@@ -218,8 +218,8 @@ app.post('/remove_job', async (req, res) => {
 app.post('/remove_from_queue', async (req, res) => {
     console.log("app.post removing name from queue:");
     console.log(req.body.name);
-    deletedQueueNames.add(req.body.name);
-    console.log(deletedQueueNames);
+    // deletedQueueNames.add(req.body.name);
+    // console.log(deletedQueueNames);
     await rest.removeJob(req.body.name);
     // res.redirect('/new');
 });
@@ -227,22 +227,22 @@ app.post('/remove_from_queue', async (req, res) => {
 app.get('/running_jobs', async (req, res) => {
     let jobs = await rest.getJobs();
     console.log(jobs);
-    // console.log()
     let queueNames = await getQueueNames(jobs);
-
-    // getQueueNames(jobs)
-    //     .then(async (queueNames) => {
-    //         let runningJobs = await getRunningJobs(jobs, queueNames);
     let podsNames = {};
-    // console.log("AAAAAAAAAA");
-    // console.log(queueNames);
-    //     });
     let runningJobs = await getRunningJobs(jobs, queueNames);
+    // let runningJobsNames = [];
     for (let job in runningJobs) {
         if (runningJobs.hasOwnProperty(job)) {
+            let jobName = runningJobs[job];//.metadata.name;
             console.log(job);
-            // let jobName = runningJobs[job].metadata.name;
-            podsNames[runningJobs[job]] = await rest.getPodName(runningJobs[job], "job-name");
+            // runningJobsNames.push(jobName);
+            // if (runningJobs[job].metadata.labels.app === "appsimulator") {
+            //     let deploymentConfigTaskManagerName = getDeploymentConfigTaskManagerName(jobName);
+                // let podTaskManagerName = await rest.getPodName(deploymentConfigTaskManagerName) ;
+                // podsNames[jobName] = await rest.getPodName(deploymentConfigTaskManagerName)//runningJobs[job], "job-name");
+            // } else {
+                podsNames[jobName] = await rest.getPodName(jobName, "job-name");
+            // }
         }
     }
     console.log("Pods Names");
@@ -251,7 +251,7 @@ app.get('/running_jobs', async (req, res) => {
         data: jobs,
         runningJobs: runningJobs,
         queueNames: queueNames,
-        deletedQueueNames: deletedQueueNames,
+        // deletedQueueNames: deletedQueueNames,
         podsNames: podsNames
     });
 });
@@ -283,7 +283,7 @@ app.get('/completed_jobs', async (req, res) => {
 
                 jobsNames.push(jobName);
 
-                if(jobs[job].metadata.labels.app === "appsimulator") {
+                if (jobs[job].metadata.labels.app === "appsimulator") {
                     let deploymentConfigTaskManagerName = getDeploymentConfigTaskManagerName(jobName);
                     let deploymentConfigJobManagerName = getDeploymentConfigJobManagerName(jobName);
                     // let serviceTaskManagerName = getServiceTaskManagerName(jobName);
@@ -306,8 +306,7 @@ app.get('/completed_jobs', async (req, res) => {
                     console.log(podsNames);
 
                     delete jobsServicesDeploymentConfigs[jobName];
-                }
-                else {
+                } else {
                     console.log("ABC");
                     console.log(jobName);
                     podsNames[jobName] = await rest.getCompletedPodName(jobName);
@@ -321,7 +320,13 @@ app.get('/completed_jobs', async (req, res) => {
     console.log(knownPodsNames);
     await fsPromises.writeFile('/nfs/pods.json', JSON.stringify(knownPodsNames));
 
-    res.send({data: jobs, jobsNames: jobsNames, podsNames: podsNames, startTimes: startTimes, completionTimes: completionTimes});
+    res.send({
+        data: jobs,
+        jobsNames: jobsNames,
+        podsNames: podsNames,
+        startTimes: startTimes,
+        completionTimes: completionTimes
+    });
 
 });
 
@@ -431,7 +436,7 @@ async function createRecommenderConfigFile(model, configName, dataSet, dataSplit
         "temp_train": 0,
         "temp_train_comment": "options: 0,10,20,30,40,50,100",
         "percent": 1,
-        "n_sample": 1000000,
+        "n_sample": 10000,
         "metrics": ["ndcg_at_k", "precision_at_k", "recall_at_k", "map_at_k"],
         "late_dim": 512,
         "emb_dim": parseInt(embedSize),

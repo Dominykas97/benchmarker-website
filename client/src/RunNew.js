@@ -10,9 +10,13 @@ class RunNew extends Component {
                     initialValues={{
                         jobType: "job-appsimulator-flinksim-",
                         jobName: 'abc123',
+                        simulatorLimitCpu: '1500',
+                        simulatorLimitMemory: '16',
+                        simulatorRequestCpu: '1000',
+                        simulatorRequestMemory: '6',
                         pageLoadTime: '3',
                         numberOfRequestsPerLoad: '200',
-                        memoryUsage: '5',
+                        memoryUsage: '0',
                         pageSize: '3',
                         numberOfRequests: '2',
                         responseSize: '2',
@@ -109,13 +113,57 @@ class RunNew extends Component {
                                             <ErrorMessage name="jobName" component="div"/>
                                         </div>
                                     </div>
+                                    <label htmlFor="simulatorLimitCpu">Limit cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="simulatorLimitCpu"
+                                                   name="simulatorLimitCpu"/>
+                                            <ErrorMessage name="simulatorLimitCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="simulatorLimitMemory">Limit memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="simulatorLimitMemory"
+                                                   name="simulatorLimitMemory"/>
+                                            <ErrorMessage name="simulatorLimitMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="simulatorRequestCpu">Request cpu: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="simulatorRequestCpu"
+                                                   name="simulatorRequestCpu"/>
+                                            <ErrorMessage name="simulatorRequestCpu" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">mCpu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label htmlFor="simulatorRequestMemory">Request memory: </label>
+                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
+                                        <div className="row">
+                                            <Field className="col-8 col-lg-7" type="simulatorRequestMemory"
+                                                   name="simulatorRequestMemory"/>
+                                            <ErrorMessage name="simulatorRequestMemory" component="div"/>
+                                            <div
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">GiB
+                                            </div>
+                                        </div>
+                                    </div>
                                     <label htmlFor="pageLoadTime">Page load time: </label>
                                     <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field className="col-8 col-lg-7" type="pageLoadTime" name="pageLoadTime"/>
                                             <ErrorMessage name="pageLoadTime" component="div"/>
                                             <div
-                                                className="col-4 col-lg-4 col-xl-3 justify-content-center table-secondary">?
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-center table-secondary">s
                                             </div>
                                         </div>
                                     </div>
@@ -127,26 +175,27 @@ class RunNew extends Component {
                                             <ErrorMessage name="numberOfRequestsPerLoad" component="div"/>
                                         </div>
                                     </div>
-                                    <label htmlFor="memoryUsage">Memory usage: </label>
-                                    <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
-                                        <div className="row">
-                                            <Field className="col-8 col-lg-7" type="memoryUsage" name="memoryUsage"/>
-                                            <ErrorMessage name="memoryUsage" component="div"/>
-                                            <div
-                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">MB
-                                            </div>
-                                        </div>
-                                    </div>
                                     <label htmlFor="pageSize">Page size: </label>
                                     <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">
                                             <Field className="col-8 col-lg-7" type="pageSize" name="pageSize"/>
                                             <ErrorMessage name="pageSize" component="div"/>
                                             <div
-                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">?
+                                                className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">MB
                                             </div>
                                         </div>
                                     </div>
+                                    {/*<label htmlFor="memoryUsage">Memory usage: </label>*/}
+                                    {/*<div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">*/}
+                                    {/*    <div className="row">*/}
+                                    {/*        <Field className="col-8 col-lg-7" type="memoryUsage" name="memoryUsage"/>*/}
+                                    {/*        <ErrorMessage name="memoryUsage" component="div"/>*/}
+                                    {/*        <div*/}
+                                    {/*            className="col-4 col-lg-4 col-xl-3 justify-content-end table-secondary">MB*/}
+                                    {/*        </div>*/}
+                                    {/*    </div>*/}
+                                    {/*</div>*/}
+
                                     <label htmlFor="numberOfRequests">Number of requests: </label>
                                     <div className="col-6 col-sm-5 col-md-3 col-lg-2 col-xl-2">
                                         <div className="row">

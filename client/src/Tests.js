@@ -54,7 +54,7 @@ class Tests extends Component {
                 data: res.data,
                 runningJobs: res.runningJobs,
                 queueNames: res.queueNames,
-                deletedQueueNames: res.deletedQueueNames,
+                // deletedQueueNames: res.deletedQueueNames,
                 podsNames: res.podsNames
             }))
             .catch(err => console.log(err));
@@ -127,11 +127,6 @@ class Tests extends Component {
             "&var-embed_size=" + this.state.embedSize +
             "&var-data_split=" + this.state.dataSplit;
         console.log(source);
-        // const options = [
-        //     {value: 'dataset', label: 'Dataset'},
-        //     {value: 'data_split', label: 'Data_split'},
-        //     {value: 'embed_size', label: 'Embed_size'}
-        // ];
         return (
             <div className="container-fluid">
                 <div className="row">
@@ -275,7 +270,7 @@ class Tests extends Component {
                         </Formik>
                         <div className="row">
                             <div className="col-6">
-                                <iframe src={source} width="500" height="725" frameBorder="0"/>
+                                <iframe title={"configurable"} src={source} width="500" height="725" frameBorder="0"/>
                             </div>
                             {this.state.selectedItemIndex !== undefined ? (
                                 <div className="row" style={{marginLeft: 20}}>
